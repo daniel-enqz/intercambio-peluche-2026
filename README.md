@@ -7,3 +7,5 @@ Página estática (GitHub Pages). Cada participante entra con su palabra secreta
 - `palabras.txt` NO se sube (está en `.gitignore`).
 
 Re-sortear: `node generate.mjs && git commit -am "nuevo sorteo" && git push`
+
+Cómo funciona el cifrado y las cartas: [docs/como-funciona.md](docs/como-funciona.md)
