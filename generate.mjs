@@ -36,9 +36,8 @@ const FAMILIES = [
   ["juan", "enrique", "juanito", "angelica"],
   ["victor"],
 ];
-// Personas que pueden regalarle a su propia familia: se intenta TARGET y, si no hay forma, hasta MAX.
-const SAME_FAMILY_TARGET = 0;
-const SAME_FAMILY_MAX = 3;
+// Número EXACTO de personas que le regalan a alguien de su propia familia.
+const SAME_FAMILY_EXACT = 3;
 const familyOf = Object.fromEntries(PEOPLE.map(([id]) => [id, id]));
 FAMILIES.forEach((fam, i) => fam.forEach((id) => {
   if (!(id in familyOf)) throw new Error(`Familia con id desconocido: ${id}`);
@@ -87,7 +86,7 @@ let order, tries = 0;
 do {
   order = shuffle(PEOPLE.map((p) => p[0]));
   if (++tries > 2e6) throw new Error("No encontré un sorteo válido");
-} while (sameFamily(order) > (tries < 1e6 ? SAME_FAMILY_TARGET : SAME_FAMILY_MAX));
+} while (sameFamily(order) !== SAME_FAMILY_EXACT);
 
 // Palabras: se conservan las de palabras.txt (por nombre) salvo --new-words
 const nameToId = Object.fromEntries(PEOPLE.map(([id, name]) => [name, id]));
