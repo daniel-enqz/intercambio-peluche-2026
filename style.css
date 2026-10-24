@@ -464,3 +464,14 @@ button.ghost:active:not(:disabled) { transform: translateY(1px); box-shadow: non
 .cena-close:active:not(:disabled) { transform: none; box-shadow: none; }
 @keyframes cenaIn { from { opacity: 0; transform: translateY(-80px) rotate(-4deg) scale(.85); } to { opacity: 1; transform: none; } }
 @keyframes swing { 0%,100% { transform: rotate(-4deg); } 50% { transform: rotate(4deg); } }
+
+/* lista de juegos */
+.games-list { list-style: none; margin: 18px 0 0; padding: 0; display: grid; gap: 10px; }
+.games-list li {
+  display: flex; align-items: center; justify-content: center; gap: 12px;
+  padding: 12px 18px; border-radius: 16px; background: #fff; color: #8e0f22;
+  font-weight: 800; font-size: 1.35rem; box-shadow: 0 5px 0 #5e0b18;
+  animation: rise .45s calc(.5s + var(--i) * .1s) both;
+}
+.games-list li span { font-size: 1.9rem; display: inline-block; animation: swing 1.8s ease-in-out infinite; transform-origin: top center; }
+.games-list + .games-soon { font-size: .95rem; padding: 6px 14px; background: rgba(255,255,255,.18); color: #fff; box-shadow: none; }

@@ -19,6 +19,12 @@
       collage.appendChild(t);
     });
   // Bolita especial: juegos navideños
+  // Para agregar juegos: { icon: "\ud83c\udfb2", name: "Lotería" }
+  const JUEGOS = [
+    { icon: "\ud83e\ude85", name: "Pi\u00f1ata" },
+  ];
+  $("gamesList").innerHTML = JUEGOS.map((j, i) =>
+    `<li style="--i:${i}"><span>${j.icon}</span>${j.name}</li>`).join("");
   const games = document.createElement("button");
   games.type = "button";
   games.className = "tile tile-games";
