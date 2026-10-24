@@ -114,7 +114,7 @@
   function confetti() {
     const c = $("confetti"), x = c.getContext("2d");
     c.width = innerWidth; c.height = innerHeight;
-    const colors = ["#f6c453", "#c8102e", "#1c8a57", "#fff8ec", "#ff8fa3"];
+    const colors = ["#a8dcff", "#2b6fd6", "#ffffff", "#e6eef8", "#f3d68c", "#6fb6ff"];
     const parts = Array.from({ length: 180 }, () => ({
       x: c.width / 2, y: c.height / 2.4,
       vx: (Math.random() - 0.5) * 16, vy: Math.random() * -14 - 4,
