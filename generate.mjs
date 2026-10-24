@@ -1,7 +1,8 @@
 // Genera data.js (público, cifrado) y palabras.txt (privado, en .gitignore).
-// Uso: node generate.mjs   → re-sortea todo (palabras nuevas + asignación nueva).
+// Uso: node generate.mjs              → re-sortea; conserva las palabras de palabras.txt si existe.
+//      node generate.mjs --new-words  → re-sortea con palabras nuevas.
 import { webcrypto as crypto } from "node:crypto";
-import { writeFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 
 const PEOPLE = [
   ["aaron", "Aaron", "aaron.jpg"],
@@ -24,6 +25,20 @@ const PEOPLE = [
   ["tono", "Toño", "tono.png"],
   ["victor", "Victor", "victor.jpg"],
 ];
+
+// Nadie le regala a alguien de su propia familia. Quien no esté aquí es familia de uno.
+const FAMILIES = [
+  ["pilar", "santy", "dani"],
+  ["regi", "andrea", "german", "rosi", "tono"],
+  ["erick", "aaron", "raquel", "coy"],
+  ["juan", "enrique", "juanito", "angelica"],
+  ["victor"],
+];
+const familyOf = Object.fromEntries(PEOPLE.map(([id]) => [id, id]));
+FAMILIES.forEach((fam, i) => fam.forEach((id) => {
+  if (!(id in familyOf)) throw new Error(`Familia con id desconocido: ${id}`);
+  familyOf[id] = "fam" + i;
+}));
 
 const WORDS = [
   "paloma", "turron", "galleta", "reno", "pinguino", "bombon", "cascabel",
@@ -60,9 +75,27 @@ async function keyFor(word) {
   );
 }
 
-// Un solo ciclo aleatorio: nadie se toca a sí mismo y no hay "intercambios" A<->B
-const order = shuffle(PEOPLE.map((p) => p[0]));
-const words = shuffle(WORDS).slice(0, PEOPLE.length);
+// Un solo ciclo aleatorio: nadie se toca a sí mismo, no hay "intercambios" A<->B
+// y nadie le regala a su familia (se re-baraja hasta cumplirlo).
+const valid = (o) => o.every((id, i) => familyOf[id] !== familyOf[o[(i + 1) % o.length]]);
+let order, tries = 0;
+do {
+  order = shuffle(PEOPLE.map((p) => p[0]));
+  if (++tries > 1e6) throw new Error("No encontré un sorteo válido");
+} while (!valid(order));
+
+// Palabras: se conservan las de palabras.txt (por nombre) salvo --new-words
+const nameToId = Object.fromEntries(PEOPLE.map(([id, name]) => [name, id]));
+const wordOf = {};
+if (existsSync("palabras.txt") && !process.argv.includes("--new-words")) {
+  for (const l of readFileSync("palabras.txt", "utf8").split("\n")) {
+    const m = l.match(/^(.+?)\s+→\s+(\S+)$/);
+    if (m && nameToId[m[1].trim()]) wordOf[nameToId[m[1].trim()]] = m[2];
+  }
+}
+const spare = shuffle(WORDS.filter((w) => !Object.values(wordOf).includes(w)));
+for (const [id] of PEOPLE) wordOf[id] ??= spare.pop();
+const words = order.map((id) => wordOf[id]);
 
 const secrets = {};
 const lines = [];
