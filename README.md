@@ -9,3 +9,5 @@ Página estática (GitHub Pages). Cada participante entra con su palabra secreta
 Re-sortear: `node generate.mjs && git commit -am "nuevo sorteo" && git push`
 
 Cómo funciona el cifrado y las cartas: [docs/como-funciona.md](docs/como-funciona.md)
+
+Verificar el sorteo publicado (solo conteos, sin nombres): `node verificar.mjs`
