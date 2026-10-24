@@ -12,6 +12,7 @@ const PEOPLE = [
   ["angelica", "Angélica", "angelica.png"],
   ["coy", "Coy", "coy.png"],
   ["dani", "Dani", "dani.png"],
+  ["diana", "Diana", "diana.png"],
   ["enrique", "Enrique", "enrique.jpg"],
   ["erick", "Erick", "erick.jpg"],
   ["german", "Germán", "german.png"],
@@ -35,6 +36,7 @@ const FAMILIES = [
   ["mafer", "alex", "alexito"],
   ["juan", "enrique", "juanito", "angelica"],
   ["victor"],
+  ["diana"],
 ];
 // Número EXACTO de personas que le regalan a alguien de su propia familia.
 const SAME_FAMILY_EXACT = 3;
