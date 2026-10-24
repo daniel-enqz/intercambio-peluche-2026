@@ -2,5 +2,5 @@
 // Si SUPABASE_KEY está vacío, la página funciona igual pero sin cartas.
 window.CONFIG = {
   SUPABASE_URL: "https://ztmfbhxwosduapocdawi.supabase.co",
-  SUPABASE_KEY: "",
+  SUPABASE_KEY: "sb_publishable_akQJ_XIhyW5zSXR3RFYC8w_Kfgej6ir",
 };
