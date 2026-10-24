@@ -347,20 +347,21 @@ button.ghost:active:not(:disabled) { transform: translateY(1px); box-shadow: non
   font-style: normal; display: inline-block; opacity: 0;
   animation: aaaIn .35s calc(.8s + var(--i) * .14s) both, aaaWave 1.4s calc(1.8s + var(--i) * .1s) ease-in-out infinite;
 }
-.arrullo-ask { margin: 14px 0 12px; font-weight: 800; font-size: 1.05rem; color: #5a3d0c; animation: fade .5s 1.6s both; }
+.arrullo-ask { margin: 14px 0 12px; font-weight: 800; font-size: 1.05rem; color: #5a3d0c; animation: fade .4s .5s both; }
 
 .arrullo-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; text-align: left; }
 .arrullo-row {
   display: grid; grid-template-columns: 40px 1fr auto auto; align-items: center; gap: 10px;
   padding: 7px 8px 7px 7px; border-radius: 14px; background: rgba(255,255,255,.7);
   border: 1.5px solid rgba(201,154,59,.35);
-  animation: rise .45s calc(1.7s + var(--i) * .04s) both;
+  animation: rise .4s calc(.55s + var(--i) * .025s) both;
+  transition: background .25s, border-color .25s, box-shadow .25s;
 }
 .arrullo-row.mine { background: #fff; border-color: #c8102e; box-shadow: 0 0 0 3px rgba(200,16,46,.15); }
 .arrullo-row img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; object-position: center 25%; border: 2px solid #e8c36a; }
 .arrullo-row .who b { display: block; font-size: .98rem; }
 .arrullo-row .bar { height: 7px; margin-top: 5px; border-radius: 99px; background: rgba(201,154,59,.2); overflow: hidden; }
-.arrullo-row .bar div { height: 100%; border-radius: 99px; background: linear-gradient(90deg, #e8c36a, #c8102e); transition: width .5s cubic-bezier(.2,.9,.3,1); }
+.arrullo-row .bar div { height: 100%; border-radius: 99px; background: linear-gradient(90deg, #e8c36a, #c8102e); transition: width .45s cubic-bezier(.2,.9,.3,1.15); }
 .arrullo-row .count { min-width: 26px; text-align: center; font-weight: 800; font-size: 1.2rem; color: #c8102e; }
 .arrullo-row .vote {
   min-width: 52px; padding: 7px 10px; font-size: .95rem; border-radius: 10px;
@@ -368,6 +369,8 @@ button.ghost:active:not(:disabled) { transform: translateY(1px); box-shadow: non
 }
 .arrullo-row .vote:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 1px 0 #7a0a1c; }
 .arrullo-row.mine .vote { background: #fff; color: #c8102e; box-shadow: 0 4px 0 #e2c8cc; border: 1.5px solid #c8102e; }
+.arrullo-row .count.bump { animation: bump .35s cubic-bezier(.3,1.8,.5,1); }
+.arrullo-row .vote:disabled { opacity: 1; filter: none; cursor: default; }
 .arrullo-note { margin: 12px 0 0; font-size: .88rem; color: #7a5a2a; }
 .arrullo-close {
   position: absolute; top: 10px; right: 10px; z-index: 2; width: 34px; height: 34px; padding: 0; border-radius: 50%;
@@ -377,4 +380,5 @@ button.ghost:active:not(:disabled) { transform: translateY(1px); box-shadow: non
 @keyframes arrIn { from { opacity: 0; transform: translateY(60px) scale(.85); } to { opacity: 1; transform: none; } }
 @keyframes starIn { from { opacity: 0; transform: translateX(-50%) translateY(-60px) scale(.3) rotate(-180deg); } to { opacity: 1; transform: translateX(-50%); } }
 @keyframes aaaIn { from { opacity: 0; transform: translateY(20px) scale(.4); } to { opacity: 1; transform: none; } }
+@keyframes bump { 0% { transform: scale(1); } 40% { transform: scale(1.5); } 100% { transform: scale(1); } }
 @keyframes aaaWave { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }

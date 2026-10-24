@@ -236,93 +236,91 @@
 
   const arrModal = $("arrulloModal"), arrCard = arrModal.querySelector(".arrullo-card");
   const video = $("arrulloVideo"), list = $("arrulloList"), note = $("arrulloNote");
-  const VOTE_KEY = "peluche2026.arrullo";
-  const votos = {}; // person_id -> n
-  let myVote = localStorage.getItem(VOTE_KEY);
-  let order = [];
-  let voting = false;
+  const votos = {};          // person_id -> n (lo que dice el servidor + mis votos)
+  const voted = new Set();   // por quién ya voté en esta visita a la página
+  const rows = {};           // person_id -> { li, bar, count, btn }
 
   const aaa = $("arrulloAaa");
   aaa.innerHTML = "aaaaa\u2026".split("").map((c, i) => `<i style="--i:${i}">${c}</i>`).join("");
 
+  // Se piden al cargar la página, así al abrir ya están listos.
   async function loadVotos() {
     if (!cartasOn) return;
     try {
       const r = await api("votos_arrullo?select=person_id,votos");
       if (!r.ok) throw new Error(await r.text());
-      for (const k of Object.keys(votos)) delete votos[k];
       (await r.json()).forEach((v) => (votos[v.person_id] = v.votos));
     } catch (x) {
       console.warn("No pude cargar los votos", x);
     }
   }
+  let votosReady = loadVotos();
 
-  function renderVotos() {
+  // La lista se construye UNA vez; después solo se actualizan números y barras.
+  people.forEach((p) => {
+    const li = document.createElement("li");
+    li.className = "arrullo-row";
+    li.innerHTML = `
+      <img src="${p.img}" alt="" loading="lazy">
+      <div class="who"><b>${p.name}</b><div class="bar"><div></div></div></div>
+      <span class="count">0</span>
+      <button type="button" class="vote">+1</button>`;
+    const btn = li.querySelector(".vote");
+    btn.disabled = !cartasOn;
+    btn.addEventListener("click", () => vote(p.id));
+    rows[p.id] = { li, bar: li.querySelector(".bar div"), count: li.querySelector(".count"), btn };
+  });
+  note.textContent = cartasOn
+    ? "Puedes votar por varias personas, una vez por cada una \ud83d\ude0a"
+    : "La votaci\u00f3n a\u00fan no est\u00e1 disponible.";
+
+  function paint() {
     const max = Math.max(1, ...people.map((p) => votos[p.id] || 0));
-    list.innerHTML = "";
-    order.forEach((p, i) => {
-      const n = votos[p.id] || 0;
-      const li = document.createElement("li");
-      li.className = "arrullo-row" + (myVote === p.id ? " mine" : "");
-      li.style.setProperty("--i", i);
-      li.innerHTML = `
-        <img src="${p.img}" alt="">
-        <div class="who"><b>${p.name}</b><div class="bar"><div style="width:${(n / max) * 100}%"></div></div></div>
-        <span class="count">${n}</span>
-        <button type="button" class="vote" ${cartasOn ? "" : "disabled"}>${myVote === p.id ? "\u2705" : "+1"}</button>`;
-      li.querySelector(".vote").addEventListener("click", () => vote(p.id));
-      list.appendChild(li);
-    });
-    note.textContent = !cartasOn
-      ? "La votaci\u00f3n a\u00fan no est\u00e1 disponible."
-      : myVote
-        ? "Tienes 1 voto. T\u00f3calo otra vez para quitarlo o vota por alguien m\u00e1s para cambiarlo."
-        : "Tienes 1 voto \ud83d\ude0a";
-  }
-
-  async function vote(id) {
-    if (voting || !cartasOn) return;
-    voting = true;
-    const prev = myVote;
-    const next = prev === id ? null : id;
-    // optimista
-    if (prev) votos[prev] = Math.max(0, (votos[prev] || 0) - 1);
-    if (next) votos[next] = (votos[next] || 0) + 1;
-    myVote = next;
-    renderVotos();
-    try {
-      const r = await api("rpc/votar_arrullo", {
-        method: "POST",
-        body: JSON.stringify({ nuevo: next, anterior: prev }),
-      });
-      if (!r.ok) throw new Error(await r.text());
-      if (next) localStorage.setItem(VOTE_KEY, next); else localStorage.removeItem(VOTE_KEY);
-      await loadVotos();
-    } catch (x) {
-      console.error(x);
-      myVote = prev;
-      await loadVotos();
-      note.textContent = "No se pudo guardar tu voto, intenta de nuevo \ud83d\ude4f";
-    } finally {
-      voting = false;
-      const msg = note.textContent;
-      renderVotos();
-      if (msg.startsWith("No se pudo")) note.textContent = msg;
+    for (const p of people) {
+      const r = rows[p.id], n = votos[p.id] || 0;
+      r.count.textContent = n;
+      r.bar.style.width = `${(n / max) * 100}%`;
+      const mine = voted.has(p.id);
+      r.li.classList.toggle("mine", mine);
+      r.btn.textContent = mine ? "\u2705" : "+1";
+      r.btn.disabled = mine || !cartasOn;
     }
   }
 
-  arrTile.addEventListener("click", async () => {
+  function sortRows() {
+    [...people]
+      .sort((a, b) => (votos[b.id] || 0) - (votos[a.id] || 0) || a.name.localeCompare(b.name, "es"))
+      .forEach((p, i) => { rows[p.id].li.style.setProperty("--i", i); list.appendChild(rows[p.id].li); });
+  }
+
+  function vote(id) {
+    if (voted.has(id) || !cartasOn) return;
+    voted.add(id);
+    votos[id] = (votos[id] || 0) + 1;
+    paint();
+    const c = rows[id].count;
+    c.classList.remove("bump"); void c.offsetWidth; c.classList.add("bump");
+    // En segundo plano: la pantalla no espera al servidor.
+    api("rpc/votar_arrullo", { method: "POST", body: JSON.stringify({ nuevo: id, anterior: null }) })
+      .then((r) => { if (!r.ok) throw new Error(r.status); })
+      .catch((x) => {
+        console.error("No se guard\u00f3 el voto", x);
+        voted.delete(id);
+        votos[id] = Math.max(0, (votos[id] || 0) - 1);
+        paint();
+      });
+  }
+
+  arrTile.addEventListener("click", () => {
     arrModal.hidden = false;
     arrCard.style.animation = "none"; void arrCard.offsetWidth; arrCard.style.animation = "";
     arrModal.scrollTop = 0;
     // reproducir dentro del click para que el navegador permita el sonido
     video.currentTime = 0;
     video.play().catch(() => { video.muted = true; video.play().catch(() => {}); });
-    order = [...people].sort((a, b) => a.name.localeCompare(b.name, "es"));
-    renderVotos();
-    await loadVotos();
-    order.sort((a, b) => (votos[b.id] || 0) - (votos[a.id] || 0) || a.name.localeCompare(b.name, "es"));
-    renderVotos();
+    // Pinta ya con lo que hay en memoria; el orden solo cambia al abrir.
+    sortRows(); paint();
+    votosReady.then(() => { votosReady = loadVotos(); return votosReady; }).then(paint);
   });
   const closeArrullo = () => { arrModal.hidden = true; video.pause(); };
   $("arrulloClose").addEventListener("click", closeArrullo);
