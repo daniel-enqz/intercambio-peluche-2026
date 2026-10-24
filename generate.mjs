@@ -34,9 +34,8 @@ const FAMILIES = [
   ["regi", "andrea", "german", "rosi", "tono"],
   ["erick", "aaron", "raquel", "coy"],
   ["mafer", "alex", "alexito"],
-  ["juan", "enrique", "juanito", "angelica"],
+  ["juan", "enrique", "juanito", "angelica", "diana"],
   ["victor"],
-  ["diana"],
 ];
 // Número EXACTO de personas que le regalan a alguien de su propia familia.
 const SAME_FAMILY_EXACT = 3;
