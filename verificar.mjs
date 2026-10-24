@@ -14,7 +14,7 @@ const FAMILIAS = [
   ["juan", "enrique", "juanito", "angelica", "diana"],
   ["victor"],
 ];
-const EXACTOS_EN_FAMILIA = 3;
+const EXACTOS_EN_FAMILIA = 2;
 
 const URL = "https://daniel-enqz.github.io/intercambio-peluche-2026/data.js";
 const src = process.argv.includes("--local")

@@ -38,7 +38,7 @@ const FAMILIES = [
   ["victor"],
 ];
 // Número EXACTO de personas que le regalan a alguien de su propia familia.
-const SAME_FAMILY_EXACT = 3;
+const SAME_FAMILY_EXACT = 2;
 const familyOf = Object.fromEntries(PEOPLE.map(([id]) => [id, id]));
 FAMILIES.forEach((fam, i) => fam.forEach((id) => {
   if (!(id in familyOf)) throw new Error(`Familia con id desconocido: ${id}`);
