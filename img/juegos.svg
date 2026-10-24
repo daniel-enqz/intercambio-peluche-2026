@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="38%" r="70%">
+      <stop offset="0" stop-color="#e2374a"/>
+      <stop offset=".6" stop-color="#a5172b"/>
+      <stop offset="1" stop-color="#5e0b18"/>
+    </radialGradient>
+    <linearGradient id="die" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#dfe8f5"/>
+    </linearGradient>
+    <linearGradient id="hat" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ff4d5e"/>
+      <stop offset="1" stop-color="#b3132a"/>
+    </linearGradient>
+    <filter id="sh" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#2a0008" flood-opacity=".55"/>
+    </filter>
+  </defs>
+
+  <rect width="200" height="200" fill="url(#bg)"/>
+
+  <!-- destellos -->
+  <g fill="#f3d68c">
+    <path d="M34 40l3 8 8 3-8 3-3 8-3-8-8-3 8-3z"/>
+    <path d="M168 58l2 6 6 2-6 2-2 6-2-6-6-2 6-2z"/>
+    <path d="M160 160l2 5 5 2-5 2-2 5-2-5-5-2 5-2z"/>
+  </g>
+  <g fill="#fff" opacity=".8">
+    <circle cx="56" cy="168" r="2.5"/><circle cx="150" cy="30" r="2"/>
+    <circle cx="22" cy="110" r="2"/><circle cx="182" cy="118" r="2.5"/>
+    <circle cx="104" cy="22" r="1.8"/>
+  </g>
+
+  <!-- dado 1 (cinco) -->
+  <g transform="translate(72 128) rotate(-16)" filter="url(#sh)">
+    <rect x="-32" y="-32" width="64" height="64" rx="13" fill="url(#die)" stroke="#c3d2e8" stroke-width="2"/>
+    <g fill="#12336e">
+      <circle cx="-15" cy="-15" r="6"/><circle cx="15" cy="-15" r="6"/>
+      <circle cx="0" cy="0" r="6"/>
+      <circle cx="-15" cy="15" r="6"/><circle cx="15" cy="15" r="6"/>
+    </g>
+  </g>
+
+  <!-- dado 2 (tres) con gorro de Santa -->
+  <g transform="translate(130 118) rotate(14)" filter="url(#sh)">
+    <rect x="-30" y="-30" width="60" height="60" rx="12" fill="url(#die)" stroke="#c3d2e8" stroke-width="2"/>
+    <g fill="#c8102e">
+      <circle cx="-14" cy="14" r="6"/><circle cx="0" cy="0" r="6"/><circle cx="14" cy="-14" r="6"/>
+    </g>
+    <!-- gorro -->
+    <path d="M-30 -34 C -22 -70, 12 -82, 34 -64 C 26 -60, 20 -52, 22 -40 Z" fill="url(#hat)"/>
+    <rect x="-36" y="-42" width="66" height="14" rx="7" fill="#fff"/>
+    <circle cx="36" cy="-64" r="8" fill="#fff"/>
+  </g>
+</svg>

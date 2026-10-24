@@ -6,7 +6,7 @@
   <title>Intercambio Navideño · Familia Peluche 2026</title>
   <meta name="description" content="Descubre a quién le vas a regalar este año 🎁" />
   <meta property="og:title" content="Intercambio Navideño · Familia Peluche 2026" />
-  <meta property="og:description" content="Ingresa tu palabra secreta y descubre quién te tocó 🎁" />
+  <meta property="og:description" content="Revisa quién te tocó y escribe tu carta 🎁" />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎁</text></svg>" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -29,8 +29,8 @@
     <section class="collage" id="collage" aria-label="Participantes"></section>
 
     <form class="card" id="form" autocomplete="off">
-      <label for="word">Ingresa tu palabra para ver quién te tocó</label>
-      <input id="word" name="word" type="text" placeholder="tu palabra secreta…"
+      <label for="word">Revisa quién te tocó y escribe tu carta</label>
+      <input id="word" name="word" type="text" placeholder="Ingresa tu palabra secreta"
              autocapitalize="none" autocorrect="off" spellcheck="false" />
       <button id="go" type="submit" disabled>Continuar 🎁</button>
       <p class="error" id="error" role="alert"></p>
@@ -85,6 +85,36 @@
         <p class="sign" id="letterSign"></p>
         <button type="button" class="letter-close" id="letterClose" aria-label="Cerrar">✕</button>
       </article>
+    </div>
+  </div>
+
+  <div class="games-modal" id="gamesModal" hidden>
+    <div class="games-card" role="dialog" aria-modal="true" aria-labelledby="gamesTitle">
+      <div class="games-ribbon" aria-hidden="true"><span>🎀</span></div>
+      <div class="games-icons" aria-hidden="true"><span>🎲</span><span>🃏</span><span>🎯</span><span>🧩</span></div>
+      <h3 id="gamesTitle">JUEGOS</h3>
+      <p class="games-sub">para el intercambio</p>
+      <p class="games-soon">¡aparecerán pronto aquí!!!</p>
+      <div class="games-lights" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+      <button type="button" class="games-close" id="gamesClose" aria-label="Cerrar">✕</button>
+    </div>
+  </div>
+
+  <div class="arrullo-modal" id="arrulloModal" hidden>
+    <div class="arrullo-card" role="dialog" aria-modal="true" aria-labelledby="arrulloTitle">
+      <div class="arrullo-star" aria-hidden="true">⭐</div>
+      <div class="arrullo-video">
+        <video id="arrulloVideo" src="img/nacimiento.mp4" poster="img/nacimiento-poster.jpg"
+               playsinline controls preload="none"></video>
+      </div>
+      <h3 id="arrulloTitle">
+        <span class="arrullo-lead">Este año arrullar al Niño le toca</span>
+        <span class="arrullo-aaa" id="arrulloAaa" aria-label="aaaaa"></span>
+      </h3>
+      <p class="arrullo-ask">🗳️ ¿Quién crees que debe arrullarlo? ¡Vota!</p>
+      <ul class="arrullo-list" id="arrulloList"></ul>
+      <p class="arrullo-note" id="arrulloNote"></p>
+      <button type="button" class="arrullo-close" id="arrulloClose" aria-label="Cerrar">✕</button>
     </div>
   </div>
 

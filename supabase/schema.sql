@@ -56,3 +56,34 @@ end
 $$;
 revoke all on function public.guardar_carta(text, text) from public;
 grant execute on function public.guardar_carta(text, text) to anon, authenticated;
+
+-- Votación "¿A quién le toca arrullar al Niño?": contadores públicos.
+-- Solo se modifican vía votar_arrullo(); el "un voto por dispositivo" lo controla la página.
+create table if not exists public.votos_arrullo (
+  person_id text primary key,
+  votos     integer not null default 0 check (votos >= 0)
+);
+alter table public.votos_arrullo enable row level security;
+drop policy if exists "votos publicos" on public.votos_arrullo;
+create policy "votos publicos" on public.votos_arrullo for select to anon, authenticated using (true);
+revoke insert, update, delete on public.votos_arrullo from anon, authenticated;
+grant select on public.votos_arrullo to anon, authenticated;
+
+create or replace function public.votar_arrullo(nuevo text, anterior text)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  if anterior is not null and exists (select 1 from palabras where person_id = anterior) then
+    update votos_arrullo set votos = greatest(votos - 1, 0) where person_id = anterior;
+  end if;
+  if nuevo is not null and exists (select 1 from palabras where person_id = nuevo) then
+    insert into votos_arrullo (person_id, votos) values (nuevo, 1)
+    on conflict (person_id) do update set votos = votos_arrullo.votos + 1;
+  end if;
+end
+$$;
+revoke all on function public.votar_arrullo(text, text) from public;
+grant execute on function public.votar_arrullo(text, text) to anon, authenticated;

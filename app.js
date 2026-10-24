@@ -18,6 +18,27 @@
       t.innerHTML = `<img src="${p.img}" alt="${p.name}" loading="lazy"><span>${p.name}</span>`;
       collage.appendChild(t);
     });
+  // Bolita especial: juegos navideños
+  const games = document.createElement("button");
+  games.type = "button";
+  games.className = "tile tile-games";
+  games.setAttribute("aria-label", "Juegos para el intercambio");
+  games.style.setProperty("--rot", "-4deg");
+  games.style.setProperty("--d", `${(0.6 + people.length * 0.08).toFixed(2)}s`);
+  games.innerHTML = `<img src="img/juegos.svg" alt="Juegos" loading="lazy"><span>Juegos \ud83c\udfb2</span>`;
+  collage.appendChild(games);
+
+  const gamesModal = $("gamesModal");
+  const closeGames = () => (gamesModal.hidden = true);
+  games.addEventListener("click", () => {
+    gamesModal.hidden = false;
+    const card = gamesModal.querySelector(".games-card");
+    card.style.animation = "none"; void card.offsetWidth; card.style.animation = "";
+  });
+  $("gamesClose").addEventListener("click", closeGames);
+  gamesModal.addEventListener("click", (e) => { if (e.target === gamesModal) closeGames(); });
+  addEventListener("keydown", (e) => { if (e.key === "Escape" && !gamesModal.hidden) closeGames(); });
+
   const tip = document.createElement("p");
   tip.className = "collage-hint";
   tip.textContent = "💌 Toca una foto para leer su carta a Santa";
@@ -120,9 +141,10 @@
     box.hidden = !cartasOn || !session;
     if (box.hidden) return;
     const has = Boolean(cartas[session.giver.id]);
+    const name = session.giver.name;
     $("mineStatus").textContent = has
-      ? "\u2705 Ya llenaste tu carta. Puedes editarla cuando quieras."
-      : "A\u00fan no has llenado tu carta, puedes hacerlo cuando quieras\u2026";
+      ? `\u2705 ${name}, ya llenaste tu carta,\npuedes editarla cuando quieras`
+      : `${name}, a\u00fan no has llenado tu carta,\npuedes hacerlo cuando quieras`;
     $("writeMine").textContent = has ? "\u270f\ufe0f Editar mi carta" : "\u270d\ufe0f Escribir mi carta";
   }
   $("writeMine").addEventListener("click", () => session && openLetter(session.giver, "edit"));
@@ -201,6 +223,111 @@
       setTimeout(() => { save.disabled = false; save.textContent = label; }, 900);
     }
   });
+
+  // ---------- Arrullo del Niño (bolita + votación) ----------
+  const arrTile = document.createElement("button");
+  arrTile.type = "button";
+  arrTile.className = "tile tile-arrullo";
+  arrTile.setAttribute("aria-label", "\u00bfA qui\u00e9n le toca arrullar al Ni\u00f1o?");
+  arrTile.style.setProperty("--rot", "5deg");
+  arrTile.style.setProperty("--d", `${(0.6 + people.length * 0.08).toFixed(2)}s`);
+  arrTile.innerHTML = `<img src="img/nacimiento.jpg" alt="Arrullo del Ni\u00f1o" loading="lazy"><span>Arrullo \ud83d\udc76</span>`;
+  collage.insertBefore(arrTile, games);
+
+  const arrModal = $("arrulloModal"), arrCard = arrModal.querySelector(".arrullo-card");
+  const video = $("arrulloVideo"), list = $("arrulloList"), note = $("arrulloNote");
+  const VOTE_KEY = "peluche2026.arrullo";
+  const votos = {}; // person_id -> n
+  let myVote = localStorage.getItem(VOTE_KEY);
+  let order = [];
+  let voting = false;
+
+  const aaa = $("arrulloAaa");
+  aaa.innerHTML = "aaaaa\u2026".split("").map((c, i) => `<i style="--i:${i}">${c}</i>`).join("");
+
+  async function loadVotos() {
+    if (!cartasOn) return;
+    try {
+      const r = await api("votos_arrullo?select=person_id,votos");
+      if (!r.ok) throw new Error(await r.text());
+      for (const k of Object.keys(votos)) delete votos[k];
+      (await r.json()).forEach((v) => (votos[v.person_id] = v.votos));
+    } catch (x) {
+      console.warn("No pude cargar los votos", x);
+    }
+  }
+
+  function renderVotos() {
+    const max = Math.max(1, ...people.map((p) => votos[p.id] || 0));
+    list.innerHTML = "";
+    order.forEach((p, i) => {
+      const n = votos[p.id] || 0;
+      const li = document.createElement("li");
+      li.className = "arrullo-row" + (myVote === p.id ? " mine" : "");
+      li.style.setProperty("--i", i);
+      li.innerHTML = `
+        <img src="${p.img}" alt="">
+        <div class="who"><b>${p.name}</b><div class="bar"><div style="width:${(n / max) * 100}%"></div></div></div>
+        <span class="count">${n}</span>
+        <button type="button" class="vote" ${cartasOn ? "" : "disabled"}>${myVote === p.id ? "\u2705" : "+1"}</button>`;
+      li.querySelector(".vote").addEventListener("click", () => vote(p.id));
+      list.appendChild(li);
+    });
+    note.textContent = !cartasOn
+      ? "La votaci\u00f3n a\u00fan no est\u00e1 disponible."
+      : myVote
+        ? "Tienes 1 voto. T\u00f3calo otra vez para quitarlo o vota por alguien m\u00e1s para cambiarlo."
+        : "Tienes 1 voto \ud83d\ude0a";
+  }
+
+  async function vote(id) {
+    if (voting || !cartasOn) return;
+    voting = true;
+    const prev = myVote;
+    const next = prev === id ? null : id;
+    // optimista
+    if (prev) votos[prev] = Math.max(0, (votos[prev] || 0) - 1);
+    if (next) votos[next] = (votos[next] || 0) + 1;
+    myVote = next;
+    renderVotos();
+    try {
+      const r = await api("rpc/votar_arrullo", {
+        method: "POST",
+        body: JSON.stringify({ nuevo: next, anterior: prev }),
+      });
+      if (!r.ok) throw new Error(await r.text());
+      if (next) localStorage.setItem(VOTE_KEY, next); else localStorage.removeItem(VOTE_KEY);
+      await loadVotos();
+    } catch (x) {
+      console.error(x);
+      myVote = prev;
+      await loadVotos();
+      note.textContent = "No se pudo guardar tu voto, intenta de nuevo \ud83d\ude4f";
+    } finally {
+      voting = false;
+      const msg = note.textContent;
+      renderVotos();
+      if (msg.startsWith("No se pudo")) note.textContent = msg;
+    }
+  }
+
+  arrTile.addEventListener("click", async () => {
+    arrModal.hidden = false;
+    arrCard.style.animation = "none"; void arrCard.offsetWidth; arrCard.style.animation = "";
+    arrModal.scrollTop = 0;
+    // reproducir dentro del click para que el navegador permita el sonido
+    video.currentTime = 0;
+    video.play().catch(() => { video.muted = true; video.play().catch(() => {}); });
+    order = [...people].sort((a, b) => a.name.localeCompare(b.name, "es"));
+    renderVotos();
+    await loadVotos();
+    order.sort((a, b) => (votos[b.id] || 0) - (votos[a.id] || 0) || a.name.localeCompare(b.name, "es"));
+    renderVotos();
+  });
+  const closeArrullo = () => { arrModal.hidden = true; video.pause(); };
+  $("arrulloClose").addEventListener("click", closeArrullo);
+  arrModal.addEventListener("click", (e) => { if (e.target === arrModal) closeArrullo(); });
+  addEventListener("keydown", (e) => { if (e.key === "Escape" && !arrModal.hidden) closeArrullo(); });
 
   // ---------- Nieve ----------
   const snow = $("snow"), sx = snow.getContext("2d");
