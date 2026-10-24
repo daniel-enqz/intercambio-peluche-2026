@@ -39,6 +39,44 @@
   gamesModal.addEventListener("click", (e) => { if (e.target === gamesModal) closeGames(); });
   addEventListener("keydown", (e) => { if (e.key === "Escape" && !gamesModal.hidden) closeGames(); });
 
+  // Bolita especial: cena de posada.
+  // Para llenar el menú, agrega platillos en "items", ej: items: ["Pozole (Rosi)", "Tamales"]
+  const CENA = [
+    { icon: "\ud83c\udf72", title: "Guisados", items: [] },
+    { icon: "\ud83c\udf6e", title: "Postres", items: [] },
+    { icon: "\u2615", title: "Bebidas", items: [] },
+    { icon: "\ud83c\udf2e", title: "Y dem\u00e1s", items: [] },
+  ];
+  const cena = document.createElement("button");
+  cena.type = "button";
+  cena.className = "tile tile-cena";
+  cena.setAttribute("aria-label", "Cena de posada");
+  cena.style.setProperty("--rot", "3deg");
+  cena.style.setProperty("--d", `${(0.6 + people.length * 0.08).toFixed(2)}s`);
+  cena.innerHTML = `<img src="img/cena.svg" alt="Cena" loading="lazy"><span>Cena \ud83e\uded4</span>`;
+  collage.appendChild(cena);
+
+  const esc = (t) => t.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+  $("cenaMenu").innerHTML = CENA.map((sec, i) => `
+    <section class="cena-sec" style="--i:${i}">
+      <h4><span>${sec.icon}</span> ${sec.title}</h4>
+      <ul>${sec.items.length
+        ? sec.items.map((it) => `<li>${esc(it)}</li>`).join("")
+        : `<li class="soon">Pr\u00f3ximamente\u2026</li>`}</ul>
+    </section>`).join("");
+
+  const cenaModal = $("cenaModal");
+  const closeCena = () => (cenaModal.hidden = true);
+  cena.addEventListener("click", () => {
+    cenaModal.hidden = false;
+    cenaModal.scrollTop = 0;
+    const w = cenaModal.querySelector(".cena-wrap");
+    w.style.animation = "none"; void w.offsetWidth; w.style.animation = "";
+  });
+  $("cenaClose").addEventListener("click", closeCena);
+  cenaModal.addEventListener("click", (e) => { if (e.target === cenaModal) closeCena(); });
+  addEventListener("keydown", (e) => { if (e.key === "Escape" && !cenaModal.hidden) closeCena(); });
+
   const tip = document.createElement("p");
   tip.className = "collage-hint";
   tip.textContent = "💌 Toca una foto para leer su carta a Santa";

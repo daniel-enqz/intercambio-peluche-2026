@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="38%" r="70%">
+      <stop offset="0" stop-color="#3fae6a"/>
+      <stop offset=".6" stop-color="#1f7a45"/>
+      <stop offset="1" stop-color="#0e4226"/>
+    </radialGradient>
+    <linearGradient id="clay" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#e3874a"/>
+      <stop offset="1" stop-color="#9c4a1d"/>
+    </linearGradient>
+    <linearGradient id="husk" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f6e2a6"/>
+      <stop offset="1" stop-color="#d9b25e"/>
+    </linearGradient>
+    <filter id="sh" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#06210f" flood-opacity=".55"/>
+    </filter>
+  </defs>
+
+  <rect width="200" height="200" fill="url(#bg)"/>
+
+  <!-- destellos -->
+  <g fill="#f3d68c">
+    <path d="M30 46l3 8 8 3-8 3-3 8-3-8-8-3 8-3z"/>
+    <path d="M172 70l2 6 6 2-6 2-2 6-2-6-6-2 6-2z"/>
+    <path d="M28 150l2 5 5 2-5 2-2 5-2-5-5-2 5-2z"/>
+  </g>
+  <g fill="#fff" opacity=".8">
+    <circle cx="150" cy="26" r="2"/><circle cx="60" cy="22" r="1.8"/>
+    <circle cx="184" cy="132" r="2.5"/><circle cx="16" cy="104" r="2"/>
+  </g>
+
+  <!-- vapor -->
+  <g fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" opacity=".85">
+    <path d="M78 66c-8-10 8-16 0-28"/>
+    <path d="M98 60c-8-10 8-16 0-30"/>
+    <path d="M118 66c-8-10 8-16 0-28"/>
+  </g>
+
+  <!-- olla de barro -->
+  <g filter="url(#sh)">
+    <path d="M44 92 C 40 142, 62 168, 98 168 C 134 168, 156 142, 152 92 Z" fill="url(#clay)"/>
+    <ellipse cx="98" cy="90" rx="58" ry="12" fill="#b85a26"/>
+    <ellipse cx="98" cy="88" rx="50" ry="8" fill="#7a3510"/>
+    <!-- asas -->
+    <path d="M44 100c-14 0-16 18-2 20" fill="none" stroke="#a8501f" stroke-width="7" stroke-linecap="round"/>
+    <path d="M152 100c14 0 16 18 2 20" fill="none" stroke="#a8501f" stroke-width="7" stroke-linecap="round"/>
+    <!-- decoración -->
+    <path d="M56 118 q8 -8 16 0 t16 0 t16 0 t16 0 t16 0" fill="none" stroke="#f6e2a6" stroke-width="3" stroke-linecap="round"/>
+    <g fill="#f6e2a6"><circle cx="70" cy="136" r="3"/><circle cx="98" cy="140" r="3"/><circle cx="126" cy="136" r="3"/></g>
+  </g>
+
+  <!-- tamal -->
+  <g transform="translate(146 136) rotate(-24) scale(.85)" filter="url(#sh)">
+    <path d="M-14 -30 C -24 -6, -24 18, -10 32 L 10 32 C 24 18, 24 -6, 14 -30 Q 0 -38 -14 -30 Z" fill="url(#husk)"/>
+    <path d="M-8 -26 C -14 -4, -14 16, -4 28" fill="none" stroke="#c99a3b" stroke-width="2"/>
+    <path d="M8 -26 C 14 -4, 14 16, 4 28" fill="none" stroke="#c99a3b" stroke-width="2"/>
+    <rect x="-17" y="2" width="34" height="6" rx="3" fill="#c8102e"/>
+  </g>
+</svg>
