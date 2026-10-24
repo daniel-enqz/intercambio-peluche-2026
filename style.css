@@ -133,3 +133,100 @@ button:disabled { opacity: .45; cursor: not-allowed; filter: grayscale(.4); }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
 }
+
+/* ---------- Fotos clicables ---------- */
+.tile { cursor: pointer; border: 0; font: inherit; }
+.tile:focus-visible { outline: 3px solid var(--gold); outline-offset: 4px; }
+.collage-hint { margin: -18px 0 26px; font-size: .95rem; opacity: .8; }
+
+/* ---------- Mi carta (en la revelación) ---------- */
+.mine { margin: 0 auto 18px; max-width: 420px; animation: fade .5s 1.3s both; }
+.mine p { margin: 14px 0 10px; font-size: .98rem; opacity: .92; }
+button.ghost {
+  background: rgba(168,220,255,.12); box-shadow: none; border: 1.5px solid rgba(168,220,255,.55);
+  font-size: 1rem; padding: 10px 18px; color: var(--cream);
+}
+button.ghost:hover { background: rgba(168,220,255,.22); }
+button.ghost:active:not(:disabled) { transform: translateY(1px); box-shadow: none; }
+
+/* ---------- Carta navideña ---------- */
+.letter-modal {
+  position: fixed; inset: 0; z-index: 20; display: grid; place-items: center; padding: 16px;
+  background: rgba(4, 12, 32, .82); backdrop-filter: blur(4px); animation: fade .3s ease;
+}
+.letter-modal[hidden] { display: none; }
+.stage { position: relative; width: min(520px, 100%); height: min(82vh, 640px); perspective: 1200px; }
+
+.envelope {
+  position: absolute; left: 50%; bottom: 8%; width: min(340px, 86%); aspect-ratio: 1.55;
+  transform: translateX(-50%) translateY(120%) scale(.8); opacity: 0;
+  transition: transform .55s cubic-bezier(.2,.9,.3,1.2), opacity .4s;
+}
+.env-back, .pocket, .flap { position: absolute; inset: 0; border-radius: 10px; }
+.env-back { background: #c9d9ee; }
+.pocket {
+  background: linear-gradient(160deg, #e6eef8, #c4d5ec); z-index: 3;
+  clip-path: polygon(0 0, 50% 52%, 100% 0, 100% 100%, 0 100%);
+  box-shadow: inset 0 -6px 14px rgba(0,0,0,.08);
+}
+.flap {
+  background: linear-gradient(180deg, #b4c9e6, #9fb8dc); z-index: 4;
+  clip-path: polygon(0 0, 100% 0, 50% 58%); transform-origin: top center;
+  transition: transform .5s ease-in-out, z-index 0s .25s;
+}
+.seal {
+  position: absolute; left: 50%; top: 46%; z-index: 5; transform: translate(-50%, -50%);
+  width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center;
+  background: radial-gradient(circle at 35% 35%, #4a8df0, var(--blue-dark)); color: #fff; font-size: 1.4rem;
+  box-shadow: 0 3px 8px rgba(0,0,0,.35); transition: opacity .25s;
+}
+
+.letter {
+  position: absolute; left: 50%; bottom: 8%; z-index: 2;
+  width: min(300px, 80%); max-height: 100%; overflow: auto;
+  transform: translateX(-50%) translateY(0) scale(.9); opacity: 0;
+  padding: 26px 24px 22px; border-radius: 6px; text-align: left; color: #2a2118;
+  background:
+    repeating-linear-gradient(180deg, transparent 0 31px, rgba(43,111,214,.18) 31px 32px),
+    linear-gradient(180deg, #fffdf6, #fbf3df);
+  background-position: 0 14px, 0 0;
+  box-shadow: 0 24px 60px rgba(0,0,0,.45);
+  transition: transform .8s cubic-bezier(.2,.9,.25,1), bottom .8s cubic-bezier(.2,.9,.25,1), width .8s, opacity .3s;
+}
+.letter::before { /* borde de estampilla navideña */
+  content: ""; position: absolute; inset: 8px; border: 2px dashed rgba(43,111,214,.35); border-radius: 4px; pointer-events: none;
+}
+.letter header { display: flex; align-items: center; gap: 14px; margin-bottom: 10px; }
+.letter header img {
+  width: 64px; height: 64px; border-radius: 50%; object-fit: cover; object-position: center 25%;
+  border: 3px solid #fff; box-shadow: 0 0 0 3px var(--ice), 0 4px 10px rgba(0,0,0,.2); flex: none;
+}
+.letter .to { margin: 0; font-family: "Caveat", cursive; font-size: 1.3rem; color: var(--blue); }
+.letter h3 { margin: 0; font-family: "Mountains of Christmas", cursive; font-size: 2rem; line-height: 1; color: var(--blue-dark); }
+.letter-body {
+  font-family: "Caveat", cursive; font-size: 1.45rem; line-height: 32px; white-space: pre-wrap; word-wrap: break-word;
+  min-height: 96px;
+}
+.letter-body.empty { color: #7a6f63; font-style: italic; }
+.sign { margin: 10px 0 0; text-align: right; font-family: "Caveat", cursive; font-size: 1.35rem; color: var(--blue); }
+.letter-close {
+  position: absolute; top: 10px; right: 10px; width: 36px; height: 36px; padding: 0; border-radius: 50%;
+  font-size: 1rem; background: rgba(18,51,110,.08); color: var(--blue-dark); box-shadow: none;
+}
+.letter-close:active:not(:disabled) { transform: none; box-shadow: none; }
+.letter-edit textarea {
+  width: 100%; resize: vertical; min-height: 200px; border: 0; outline: none; padding: 0 2px;
+  background: transparent; color: #2a2118; font-family: "Caveat", cursive; font-size: 1.45rem; line-height: 32px;
+}
+.letter-edit textarea::placeholder { color: #a39686; }
+.edit-foot { display: flex; justify-content: space-between; gap: 10px; font-size: .8rem; color: #7a6f63; margin: 4px 0 12px; }
+.edit-error { color: #c0392b; font-weight: 700; text-align: right; }
+#saveLetter { width: 100%; font-size: 1rem; }
+
+/* Secuencia: 1) llega el sobre  2) se abre  3) sale la carta */
+.stage.s1 .envelope { transform: translateX(-50%) translateY(0) scale(1); opacity: 1; }
+.stage.s2 .flap { transform: rotateX(180deg); z-index: 1; }
+.stage.s2 .seal { opacity: 0; }
+.stage.s2 .letter { opacity: 1; transform: translateX(-50%) translateY(-30%) scale(.9); }
+.stage.s3 .envelope { transform: translateX(-50%) translateY(140%) scale(.9); opacity: 0; transition-duration: .6s; }
+.stage.s3 .letter { z-index: 6; bottom: 50%; width: 100%; transform: translateX(-50%) translateY(50%) scale(1); }

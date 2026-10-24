@@ -10,7 +10,7 @@
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎁</text></svg>" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Mountains+of+Christmas:wght@700&family=Nunito:wght@400;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Mountains+of+Christmas:wght@700&family=Nunito:wght@400;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -49,12 +49,47 @@
           <figure class="p receiver"><img id="receiverImg" alt="" /><figcaption id="receiverName"></figcaption></figure>
         </div>
         <p class="hint">🤫 ¡Es secreto! No le digas a nadie.</p>
+        <div class="mine" id="mine" hidden>
+          <button id="seeTheirs" type="button" class="ghost">💌 Ver la carta de <span id="theirName"></span></button>
+          <p id="mineStatus"></p>
+          <button id="writeMine" type="button" class="ghost">✍️ Escribir mi carta</button>
+        </div>
         <button id="close" type="button">Cerrar</button>
       </div>
     </div>
     <canvas id="confetti" aria-hidden="true"></canvas>
   </div>
 
+  <div class="letter-modal" id="letterModal" hidden>
+    <div class="stage" id="stage">
+      <div class="envelope" aria-hidden="true">
+        <div class="env-back"></div>
+        <div class="flap"></div>
+        <div class="pocket"></div>
+        <div class="seal">❄</div>
+      </div>
+      <article class="letter" role="dialog" aria-modal="true" aria-labelledby="letterTitle">
+        <header>
+          <img id="letterImg" alt="" />
+          <div>
+            <p class="to">Querido Santa:</p>
+            <h3 id="letterTitle"></h3>
+          </div>
+        </header>
+        <div class="letter-body" id="letterBody"></div>
+        <form class="letter-edit" id="letterEdit" hidden>
+          <textarea id="letterText" maxlength="2000" rows="8"
+            placeholder="Este año me porté muy bien y me gustaría…&#10;&#10;Talla de ropa: …&#10;Colores favoritos: …"></textarea>
+          <div class="edit-foot"><span id="count">0/2000</span><span class="edit-error" id="editError" role="alert"></span></div>
+          <button type="submit" id="saveLetter">Guardar mi carta 🎄</button>
+        </form>
+        <p class="sign" id="letterSign"></p>
+        <button type="button" class="letter-close" id="letterClose" aria-label="Cerrar">✕</button>
+      </article>
+    </div>
+  </div>
+
+  <script src="config.js"></script>
   <script src="data.js"></script>
   <script src="app.js"></script>
 </body>
