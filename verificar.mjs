@@ -1,6 +1,7 @@
 // Verifica el sorteo PUBLICADO sin revelar quién le regala a quién (solo imprime conteos).
 // Uso: node verificar.mjs            (requiere palabras.txt local)
 //      node verificar.mjs --local    (usa data.js local en vez del publicado)
+//      node verificar.mjs --mostrar  (ADEMÁS imprime el sorteo completo: revela todo)
 // Independiente de generate.mjs: las familias están escritas aquí a mano, tal cual se pidieron.
 import { webcrypto as crypto } from "node:crypto";
 import { readFileSync } from "node:fs";
@@ -64,5 +65,16 @@ const checks = [
   [`4) Exactamente ${EXACTOS_EN_FAMILIA} le regalan a su familia`, ids.filter((id) => fam[id] === fam[da[id]]).length === EXACTOS_EN_FAMILIA, `${ids.filter((id) => fam[id] === fam[da[id]]).length} casos`],
   ["Extra: no hay parejas que se regalen mutuamente", ids.every((id) => da[da[id]] !== id), `${ids.filter((id) => da[da[id]] === id).length} casos`],
 ];
+if (process.argv.includes("--mostrar")) {
+  const nombre = Object.fromEntries(window.PEOPLE.map((p) => [p.id, p.name]));
+  console.log("Sorteo completo (sigue la ronda):\n");
+  let cur = ids[0];
+  for (let i = 0; i < ids.length; i++) {
+    const misma = fam[cur] === fam[da[cur]] ? "   ← misma familia" : "";
+    console.log(`  ${String(i + 1).padStart(2)}. ${nombre[cur].padEnd(9)} \u279c ${nombre[da[cur]]}${misma}`);
+    cur = da[cur];
+  }
+  console.log();
+}
 for (const [name, ok, detail] of checks) console.log(`${ok ? "✅" : "❌"} ${name}  (${detail})`);
 process.exit(checks.every((c) => c[1]) ? 0 : 1);
