@@ -119,14 +119,12 @@
     const box = $("mine");
     box.hidden = !cartasOn || !session;
     if (box.hidden) return;
-    $("theirName").textContent = session.receiver.name;
     const has = Boolean(cartas[session.giver.id]);
     $("mineStatus").textContent = has
       ? "\u2705 Ya llenaste tu carta. Puedes editarla cuando quieras."
       : "A\u00fan no has llenado tu carta, puedes hacerlo cuando quieras\u2026";
     $("writeMine").textContent = has ? "\u270f\ufe0f Editar mi carta" : "\u270d\ufe0f Escribir mi carta";
   }
-  $("seeTheirs").addEventListener("click", () => session && openLetter(session.receiver, "read"));
   $("writeMine").addEventListener("click", () => session && openLetter(session.giver, "edit"));
 
   const modal = $("letterModal"), stage = $("stage");
