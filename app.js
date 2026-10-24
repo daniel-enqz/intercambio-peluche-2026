@@ -22,6 +22,7 @@
   // Para agregar juegos: { icon: "\ud83c\udfb2", name: "Lotería" }
   const JUEGOS = [
     { icon: "\ud83e\ude85", name: "Pi\u00f1ata" },
+    { icon: "\ud83c\udf6a", name: "Juego de la Galleta Mar\u00eda" },
   ];
   $("gamesList").innerHTML = JUEGOS.map((j, i) =>
     `<li style="--i:${i}"><span>${j.icon}</span>${j.name}</li>`).join("");
