@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Intercambio Navideño · Familia Peluche 2026</title>
+  <meta name="description" content="Descubre a quién le vas a regalar este año 🎁" />
+  <meta property="og:title" content="Intercambio Navideño · Familia Peluche 2026" />
+  <meta property="og:description" content="Ingresa tu palabra secreta y descubre quién te tocó 🎁" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎁</text></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Mountains+of+Christmas:wght@700&family=Nunito:wght@400;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <canvas id="snow" aria-hidden="true"></canvas>
+
+  <main>
+    <header class="hero">
+      <p class="kicker">✨ 🎄 ✨</p>
+      <h1>
+        <span class="line1">Intercambio Navideño</span>
+        <span class="line2">Familia Peluche</span>
+        <span class="year">2026</span>
+      </h1>
+    </header>
+
+    <section class="collage" id="collage" aria-label="Participantes"></section>
+
+    <form class="card" id="form" autocomplete="off">
+      <label for="word">Ingresa tu palabra para ver quién te tocó</label>
+      <input id="word" name="word" type="text" placeholder="tu palabra secreta…"
+             autocapitalize="none" autocorrect="off" spellcheck="false" />
+      <button id="go" type="submit" disabled>Continuar 🎁</button>
+      <p class="error" id="error" role="alert"></p>
+    </form>
+
+    <footer>Hecho con 🎅 para la familia Peluche</footer>
+  </main>
+
+  <div class="reveal" id="reveal" hidden>
+    <div class="reveal-inner">
+      <div class="gift" id="gift">🎁</div>
+      <div class="result" id="result">
+        <h2 id="hello"></h2>
+        <div class="pair">
+          <figure class="p giver"><img id="giverImg" alt="" /><figcaption id="giverName"></figcaption></figure>
+          <div class="arrow">➜</div>
+          <figure class="p receiver"><img id="receiverImg" alt="" /><figcaption id="receiverName"></figcaption></figure>
+        </div>
+        <p class="hint">🤫 ¡Es secreto! No le digas a nadie.</p>
+        <button id="close" type="button">Cerrar</button>
+      </div>
+    </div>
+    <canvas id="confetti" aria-hidden="true"></canvas>
+  </div>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
