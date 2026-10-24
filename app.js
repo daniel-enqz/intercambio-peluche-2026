@@ -319,7 +319,7 @@
       r.count.textContent = n;
       r.bar.style.width = `${(n / max) * 100}%`;
       const mine = voted.has(p.id);
-      r.li.classList.toggle("mine", mine);
+      r.li.classList.toggle("voted", mine);
       r.btn.textContent = mine ? "\u2705" : "+1";
       r.btn.disabled = mine || !cartasOn;
     }
