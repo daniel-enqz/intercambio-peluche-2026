@@ -309,7 +309,7 @@
     rows[p.id] = { li, bar: li.querySelector(".bar div"), count: li.querySelector(".count"), btn };
   });
   note.textContent = cartasOn
-    ? "Puedes votar por varias personas, una vez por cada una \ud83d\ude0a"
+    ? "Puedes votar por varias personas, una vez por cada una. Toca \u2705 para quitar tu voto \ud83d\ude0a"
     : "La votaci\u00f3n a\u00fan no est\u00e1 disponible.";
 
   function paint() {
@@ -321,7 +321,8 @@
       const mine = voted.has(p.id);
       r.li.classList.toggle("voted", mine);
       r.btn.textContent = mine ? "\u2705" : "+1";
-      r.btn.disabled = mine || !cartasOn;
+      r.btn.disabled = !cartasOn;
+      r.btn.setAttribute("aria-label", mine ? `Quitar voto a ${p.name}` : `Votar por ${p.name}`);
     }
   }
 
@@ -331,21 +332,25 @@
       .forEach((p, i) => { rows[p.id].li.style.setProperty("--i", i); list.appendChild(rows[p.id].li); });
   }
 
+  // Toggle: primer clic suma 1, segundo clic lo quita (solo los votos de esta visita).
   function vote(id) {
-    if (voted.has(id) || !cartasOn) return;
-    voted.add(id);
-    votos[id] = (votos[id] || 0) + 1;
-    paint();
+    if (!cartasOn) return;
+    const adding = !voted.has(id);
+    const apply = (add) => {
+      if (add) { voted.add(id); votos[id] = (votos[id] || 0) + 1; }
+      else { voted.delete(id); votos[id] = Math.max(0, (votos[id] || 0) - 1); }
+      paint();
+    };
+    apply(adding);
     const c = rows[id].count;
     c.classList.remove("bump"); void c.offsetWidth; c.classList.add("bump");
     // En segundo plano: la pantalla no espera al servidor.
-    api("rpc/votar_arrullo", { method: "POST", body: JSON.stringify({ nuevo: id, anterior: null }) })
+    const body = adding ? { nuevo: id, anterior: null } : { nuevo: null, anterior: id };
+    api("rpc/votar_arrullo", { method: "POST", body: JSON.stringify(body) })
       .then((r) => { if (!r.ok) throw new Error(r.status); })
       .catch((x) => {
         console.error("No se guard\u00f3 el voto", x);
-        voted.delete(id);
-        votos[id] = Math.max(0, (votos[id] || 0) - 1);
-        paint();
+        apply(!adding);
       });
   }
 
