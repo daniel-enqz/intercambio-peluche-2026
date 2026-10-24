@@ -7,7 +7,7 @@ import { existsSync, readFileSync, writeFileSync } from "node:fs";
 const PEOPLE = [
   ["aaron", "Aaron", "aaron.jpg"],
   ["alex", "Alex", "alex.jpg"],
-  ["alexito", "Alexito", "alexito.svg"],
+  ["alexito", "Alexito", "alexito.jpg"],
   ["andrea", "Andrea", "andrea.png"],
   ["angelica", "Angélica", "angelica.png"],
   ["coy", "Coy", "coy.png"],

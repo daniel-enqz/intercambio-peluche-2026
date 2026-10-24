@@ -81,7 +81,6 @@ button:active:not(:disabled) { transform: translateY(4px); box-shadow: 0 2px 0 v
 button:disabled { opacity: .45; cursor: not-allowed; filter: grayscale(.4); }
 .error { min-height: 1.3em; margin: 12px 0 0; color: #ffc2c2; font-weight: 700; }
 .shake { animation: shake .45s; }
-footer { margin-top: 36px; opacity: .65; font-size: .9rem; }
 
 /* ---------- Revelación ---------- */
 .reveal {

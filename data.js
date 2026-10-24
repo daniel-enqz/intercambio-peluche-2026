@@ -13,7 +13,7 @@ window.PEOPLE = [
   {
     "id": "alexito",
     "name": "Alexito",
-    "img": "img/alexito.svg"
+    "img": "img/alexito.jpg"
   },
   {
     "id": "andrea",
