@@ -7,6 +7,7 @@ import { existsSync, readFileSync, writeFileSync } from "node:fs";
 const PEOPLE = [
   ["aaron", "Aaron", "aaron.jpg"],
   ["alex", "Alex", "alex.jpg"],
+  ["alexito", "Alexito", "alexito.svg"],
   ["andrea", "Andrea", "andrea.png"],
   ["angelica", "Angélica", "angelica.png"],
   ["coy", "Coy", "coy.png"],
@@ -31,9 +32,13 @@ const FAMILIES = [
   ["pilar", "santy", "dani"],
   ["regi", "andrea", "german", "rosi", "tono"],
   ["erick", "aaron", "raquel", "coy"],
+  ["mafer", "alex", "alexito"],
   ["juan", "enrique", "juanito", "angelica"],
   ["victor"],
 ];
+// Personas que pueden regalarle a su propia familia: se intenta TARGET y, si no hay forma, hasta MAX.
+const SAME_FAMILY_TARGET = 0;
+const SAME_FAMILY_MAX = 3;
 const familyOf = Object.fromEntries(PEOPLE.map(([id]) => [id, id]));
 FAMILIES.forEach((fam, i) => fam.forEach((id) => {
   if (!(id in familyOf)) throw new Error(`Familia con id desconocido: ${id}`);
@@ -77,12 +82,12 @@ async function keyFor(word) {
 
 // Un solo ciclo aleatorio: nadie se toca a sí mismo, no hay "intercambios" A<->B
 // y nadie le regala a su familia (se re-baraja hasta cumplirlo).
-const valid = (o) => o.every((id, i) => familyOf[id] !== familyOf[o[(i + 1) % o.length]]);
+const sameFamily = (o) => o.filter((id, i) => familyOf[id] === familyOf[o[(i + 1) % o.length]]).length;
 let order, tries = 0;
 do {
   order = shuffle(PEOPLE.map((p) => p[0]));
-  if (++tries > 1e6) throw new Error("No encontré un sorteo válido");
-} while (!valid(order));
+  if (++tries > 2e6) throw new Error("No encontré un sorteo válido");
+} while (sameFamily(order) > (tries < 1e6 ? SAME_FAMILY_TARGET : SAME_FAMILY_MAX));
 
 // Palabras: se conservan las de palabras.txt (por nombre) salvo --new-words
 const nameToId = Object.fromEntries(PEOPLE.map(([id, name]) => [name, id]));
