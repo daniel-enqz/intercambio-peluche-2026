@@ -317,28 +317,40 @@
         .then((rows) => rows.forEach((a) => (amor[a.person_id] = Number(a.likes))))
         .catch((e) => console.warn("No pude cargar el amor", e))
     : Promise.resolve();
+  // Base fija: con 1000 likes una carta ya es "de las m\u00e1s queridas".
+  const LOVE_BASE = 1000;
+  // [likes m\u00ednimos, mensaje], de menor a mayor
   const LOVE_MSGS = [
-    "S\u00e9 el primero en mandarle amor \ud83d\udc8c",
-    "Le est\u00e1 llegando amorcito \ud83e\udd79",
-    "Esta carta ya est\u00e1 calientita \u2615",
-    "\u00a1Mucho amor por aqu\u00ed! \ud83d\udc95",
-    "\u00a1A esta carta la quieren much\u00edsimo! \ud83d\udc96",
-    "\u00a1La carta m\u00e1s querida de la posada! \ud83d\udd25",
+    [0, "S\u00e9 el primero en mandarle amor \ud83d\udc8c"],
+    [1, "\u00a1Le lleg\u00f3 su primer amorcito! \ud83e\udd79"],
+    [10, "Le est\u00e1 llegando amorcito \ud83d\udc97"],
+    [30, "Ya se siente tibiecita \u263a\ufe0f"],
+    [60, "Esta carta ya est\u00e1 calientita \u2615"],
+    [100, "Huele a ponche reci\u00e9n hecho \ud83c\udf75"],
+    [175, "Ya trae los cachetes chapeados \ud83d\ude0a"],
+    [250, "\u00a1Mucho amor por aqu\u00ed! \ud83d\udc95"],
+    [350, "Derretida como bombón en chocolate caliente \ud83c\udf6b"],
+    [450, "La est\u00e1n apapachando bien bonito \ud83e\udd17"],
+    [550, "Brilla m\u00e1s que las luces del arbolito \ud83c\udf84"],
+    [650, "\u00a1A esta carta la quieren much\u00edsimo! \ud83d\udc96"],
+    [800, "Ya casi, casi es de las m\u00e1s queridas \ud83d\udc93"],
+    [900, "\u00a1A un pasito de ser de las m\u00e1s queridas! \ud83d\udc98"],
+    [LOVE_BASE, "\u00a1De las m\u00e1s queridas de la posada! \u2764\ufe0f"],
   ];
+  const loveMsg = (n) => LOVE_MSGS.reduce((m, [min, txt]) => (n >= min ? txt : m), LOVE_MSGS[0][1]);
   const AURA_EVERY = [0, 1500, 950, 620, 400, 230]; // ms entre corazones del aura por nivel
   let loveFor = null, lovePending = 0, loveFlushT = null, auraT = null, auraLevel = -1;
 
   function loveLevel(pid) {
     const n = amor[pid] || 0;
-    if (!n) return { level: 0, fill: 0 };
-    const max = Math.max(...Object.values(amor), 1);
-    const rel = Math.sqrt(n / max); // ra\u00edz: que las cartas con poco amor tambi\u00e9n se noten
-    return { level: Math.min(5, 1 + Math.floor(rel * 4)), fill: Math.max(0.15, rel) };
+    if (!n) return { n, level: 0, fill: 0 };
+    const rel = Math.sqrt(Math.min(n, LOVE_BASE) / LOVE_BASE); // ra\u00edz: que el poco amor tambi\u00e9n se note
+    return { n, level: Math.min(5, 1 + Math.floor(rel * 4)), fill: Math.max(0.15, rel) };
   }
   function renderLove() {
     if (!loveFor) return;
-    const { level, fill } = loveLevel(loveFor);
-    $("loveMsg").textContent = LOVE_MSGS[level];
+    const { n, level, fill } = loveLevel(loveFor);
+    $("loveMsg").textContent = loveMsg(n);
     $("loveLevel").style.transform = `translateY(${(24 * (1 - fill)).toFixed(2)}px)`;
     $("stage").style.setProperty("--love", (level / 5).toFixed(2));
     if (level !== auraLevel) {
@@ -518,6 +530,7 @@
 
   const arrModal = $("arrulloModal"), arrCard = arrModal.querySelector(".arrullo-card");
   const video = $("arrulloVideo"), list = $("arrulloList"), note = $("arrulloNote");
+  const VOTOS_MAX = 100;     // tope duro (tambi\u00e9n lo valida votar_arrullo en Supabase)
   const votos = {};          // person_id -> n (lo que dice el servidor + mis votos)
   const voted = new Set();   // por quién ya voté en esta visita a la página
   const rows = {};           // person_id -> { li, bar, count, btn }
@@ -563,10 +576,14 @@
       r.count.textContent = n;
       r.bar.style.width = `${(n / max) * 100}%`;
       const mine = voted.has(p.id);
+      const full = !mine && n >= VOTOS_MAX;
       r.li.classList.toggle("voted", mine);
-      r.btn.textContent = mine ? "\u2705" : "+1";
-      r.btn.disabled = !cartasOn;
-      r.btn.setAttribute("aria-label", mine ? `Quitar voto a ${p.name}` : `Votar por ${p.name}`);
+      r.li.classList.toggle("full", full);
+      r.btn.textContent = mine ? "\u2705" : full ? "\ud83d\udcaf" : "+1";
+      r.btn.disabled = !cartasOn || full;
+      r.btn.setAttribute("aria-label", mine ? `Quitar voto a ${p.name}`
+        : full ? `${p.name} ya lleg\u00f3 al tope de ${VOTOS_MAX} votos` : `Votar por ${p.name}`);
+      r.btn.title = full ? `\u00a1Ya lleg\u00f3 a ${VOTOS_MAX} votos!` : "";
     }
   }
 
@@ -580,6 +597,7 @@
   function vote(id) {
     if (!cartasOn) return;
     const adding = !voted.has(id);
+    if (adding && (votos[id] || 0) >= VOTOS_MAX) return paint();
     const apply = (add) => {
       if (add) { voted.add(id); votos[id] = (votos[id] || 0) + 1; }
       else { voted.delete(id); votos[id] = Math.max(0, (votos[id] || 0) - 1); }

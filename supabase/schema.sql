@@ -61,7 +61,8 @@ grant execute on function public.guardar_carta(text, text) to anon, authenticate
 -- Solo se modifican vía votar_arrullo(); el "un voto por dispositivo" lo controla la página.
 create table if not exists public.votos_arrullo (
   person_id text primary key,
-  votos     integer not null default 0 check (votos >= 0)
+  votos     integer not null default 0 check (votos >= 0),
+  constraint votos_arrullo_max_100 check (votos <= 100)
 );
 alter table public.votos_arrullo enable row level security;
 drop policy if exists "votos publicos" on public.votos_arrullo;
@@ -80,8 +81,12 @@ begin
     update votos_arrullo set votos = greatest(votos - 1, 0) where person_id = anterior;
   end if;
   if nuevo is not null and exists (select 1 from palabras where person_id = nuevo) then
+    -- Tope duro: nadie pasa de 100 votos.
+    if exists (select 1 from votos_arrullo where person_id = nuevo and votos >= 100) then
+      raise exception 'tope de 100 votos' using errcode = 'P0001';
+    end if;
     insert into votos_arrullo (person_id, votos) values (nuevo, 1)
-    on conflict (person_id) do update set votos = votos_arrullo.votos + 1;
+    on conflict (person_id) do update set votos = least(votos_arrullo.votos + 1, 100);
   end if;
 end
 $$;

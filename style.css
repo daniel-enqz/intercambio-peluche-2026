@@ -425,6 +425,7 @@ button.ghost:active:not(:disabled) { transform: translateY(1px); box-shadow: non
 .arrullo-row.voted .vote { background: #fff; color: #c8102e; box-shadow: 0 4px 0 #e2c8cc; border: 1.5px solid #c8102e; }
 .arrullo-row .count.bump { animation: bump .35s cubic-bezier(.3,1.8,.5,1); }
 .arrullo-row.voted .vote:hover { background: #fff0f2; }
+.arrullo-row.full .vote:disabled { opacity: 1; filter: none; background: #fff6d8; color: inherit; box-shadow: 0 4px 0 #e8c36a; border: 1.5px solid #e8c36a; cursor: default; }
 .arrullo-note { margin: 12px 0 0; font-size: .88rem; color: #7a5a2a; }
 .arrullo-close {
   position: absolute; top: 10px; right: 10px; z-index: 2; width: 34px; height: 34px; padding: 0; border-radius: 50%;
