@@ -674,28 +674,5 @@
       else x.clearRect(0, 0, c.width, c.height);
     })();
   }
-  // ---------- Cuenta regresiva a la posada ----------
-  // Domingo 20 de diciembre de 2026, hora de Ciudad de México (UTC-6).
-  const POSADA = new Date("2026-12-20T00:00:00-06:00");
-  const DIA = 24 * 60 * 60 * 1000;
-  const pad = (n) => String(n).padStart(2, "0");
-  function tickCountdown() {
-    const ms = POSADA - Date.now();
-    if (ms <= 0) {
-      $("cdBoxes").hidden = true;
-      $("cdMsg").hidden = false;
-      $("cdMsg").textContent = ms > -DIA ? "¡Hoy es la posada! 🎉" : "¡Gracias por venir a la posada! 🎄";
-      return false;
-    }
-    const s = Math.floor(ms / 1000);
-    $("cdD").textContent = Math.floor(s / 86400);
-    $("cdH").textContent = pad(Math.floor((s % 86400) / 3600));
-    $("cdM").textContent = pad(Math.floor((s % 3600) / 60));
-    $("cdS").textContent = pad(s % 60);
-    return true;
-  }
-  if (tickCountdown()) {
-    const cdTimer = setInterval(() => { if (!tickCountdown()) clearInterval(cdTimer); }, 1000);
-  }
 
 })();

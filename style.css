@@ -604,19 +604,3 @@ button.ghost:active:not(:disabled) { transform: translateY(1px); box-shadow: non
 @keyframes badgeIn { from { transform: scale(0) rotate(-30deg); } to { transform: scale(1) rotate(0); } }
 @keyframes badgePulse { 0%, 100% { box-shadow: 0 3px 8px rgba(0,0,0,.35), 0 0 0 0 rgba(168,220,255,.7); }
                         50% { box-shadow: 0 3px 8px rgba(0,0,0,.35), 0 0 0 7px rgba(168,220,255,0); } }
-
-/* ---------- Cuenta regresiva (esquina superior derecha) ---------- */
-.countdown {
-  position: absolute; top: 12px; right: 12px; z-index: 2; padding: 8px 10px 7px; text-align: center;
-  border-radius: 14px; background: rgba(7,22,52,.55); border: 1px solid rgba(168,220,255,.25);
-  backdrop-filter: blur(6px); box-shadow: 0 6px 16px rgba(0,0,0,.25);
-  opacity: 0; animation: rise .9s cubic-bezier(.2,.8,.2,1) .75s forwards;
-}
-.cd-date { margin: 0 0 5px; font-weight: 700; font-size: .68rem; letter-spacing: .04em; color: var(--ice); }
-.cd-boxes { display: flex; justify-content: center; gap: 4px; }
-.cd-boxes[hidden] { display: none; }
-.cd-boxes > div { min-width: 34px; padding: 4px 3px 3px; border-radius: 8px; background: rgba(168,220,255,.1); border: 1px solid rgba(168,220,255,.22); }
-.cd-boxes b { display: block; font-size: .95rem; font-weight: 800; line-height: 1; color: var(--cream); font-variant-numeric: tabular-nums; }
-.cd-boxes span { display: block; margin-top: 2px; font-size: .5rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--ice); opacity: .85; }
-.cd-msg { margin: 0; font-family: "Mountains of Christmas", cursive; font-size: 1.1rem; color: var(--gold); text-shadow: 0 2px 0 var(--blue-dark); }
-@media (max-width: 560px) { main { padding-top: 84px; } }
