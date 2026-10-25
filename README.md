@@ -9,3 +9,5 @@ Re-sortear: `node generate.mjs && git commit -am "nuevo sorteo" && git push`
 Cómo funciona el cifrado y las cartas: [docs/como-funciona.md](docs/como-funciona.md)
 
 Verificar el sorteo publicado (solo conteos, sin nombres): `node verificar.mjs`
+
+Caché: `index.html` carga `style.css`, `config.js`, `data.js` y `app.js` con `?v=…`. Cambia ese número en cada deploy (`V=$(date +%Y%m%d%H%M) && sed -i '' -E "s#\?v=[0-9]+#?v=$V#g" index.html`) para que los celulares no usen archivos viejos.
