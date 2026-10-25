@@ -475,3 +475,16 @@ button.ghost:active:not(:disabled) { transform: translateY(1px); box-shadow: non
 }
 .games-list li span { font-size: 1.9rem; display: inline-block; animation: swing 1.8s ease-in-out infinite; transform-origin: top center; }
 .games-list + .games-soon { font-size: .95rem; padding: 6px 14px; background: rgba(255,255,255,.18); color: #fff; box-shadow: none; }
+
+/* ---------- Badge de carta (notificación) ---------- */
+.tile .badge {
+  position: absolute; top: -2px; right: -2px; z-index: 3;
+  width: 30px; height: 30px; border-radius: 50%;
+  display: grid; place-items: center; font-style: normal; font-size: 15px; line-height: 1;
+  background: #fff; border: 2px solid var(--blue);
+  box-shadow: 0 3px 8px rgba(0,0,0,.35);
+  animation: badgeIn .45s cubic-bezier(.3,1.8,.5,1) both, badgePulse 2.4s ease-in-out .6s infinite;
+}
+@keyframes badgeIn { from { transform: scale(0) rotate(-30deg); } to { transform: scale(1) rotate(0); } }
+@keyframes badgePulse { 0%, 100% { box-shadow: 0 3px 8px rgba(0,0,0,.35), 0 0 0 0 rgba(168,220,255,.7); }
+                        50% { box-shadow: 0 3px 8px rgba(0,0,0,.35), 0 0 0 7px rgba(168,220,255,0); } }

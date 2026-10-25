@@ -11,6 +11,7 @@
       const t = document.createElement("button");
       t.type = "button";
       t.className = "tile";
+      t.dataset.person = p.id;
       t.setAttribute("aria-label", `Ver la carta de ${p.name}`);
       t.addEventListener("click", () => openLetter(p, "read"));
       t.style.setProperty("--rot", `${(Math.random() * 16 - 8).toFixed(1)}deg`);
@@ -178,7 +179,25 @@
     cartasReady = api("cartas?select=person_id,contenido")
       .then((r) => (r.ok ? r.json() : []))
       .then((rows) => rows.forEach((c) => (cartas[c.person_id] = c.contenido)))
+      .then(() => refreshBadges())
       .catch((e) => console.warn("No pude cargar las cartas", e));
+  }
+
+  // Badge de carta (estilo notificación) en las burbujas de quien ya escribió
+  function refreshBadges() {
+    document.querySelectorAll(".tile[data-person]").forEach((t) => {
+      const has = Boolean(cartas[t.dataset.person]);
+      let b = t.querySelector(".badge");
+      if (has && !b) {
+        b = document.createElement("i");
+        b.className = "badge";
+        b.setAttribute("aria-hidden", "true");
+        b.textContent = "💌";
+        t.appendChild(b);
+      } else if (!has && b) b.remove();
+      const name = byId[t.dataset.person].name;
+      t.setAttribute("aria-label", has ? `Ver la carta de ${name} (ya escribió su carta)` : `Ver la carta de ${name}`);
+    });
   }
 
   function renderMine() {
@@ -258,6 +277,7 @@
       if (!r.ok) throw new Error(await r.text());
       const t = text.value.trim();
       if (t) cartas[editing.id] = t; else delete cartas[editing.id];
+      refreshBadges();
       renderMine();
       save.textContent = "\u00a1Guardada! \u2705";
       setTimeout(closeLetter, 900);
