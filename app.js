@@ -47,14 +47,7 @@
   gamesModal.addEventListener("click", (e) => { if (e.target === gamesModal) closeGames(); });
   addEventListener("keydown", (e) => { if (e.key === "Escape" && !gamesModal.hidden) closeGames(); });
 
-  // Bolita especial: cena de posada.
-  // Para llenar el menú, agrega platillos en "items", ej: items: ["Pozole (Rosi)", "Tamales"]
-  const CENA = [
-    { icon: "\ud83c\udf72", title: "Guisados", items: [] },
-    { icon: "\ud83c\udf6e", title: "Postres", items: [] },
-    { icon: "\u2615", title: "Bebidas", items: [] },
-    { icon: "\ud83c\udf2e", title: "Y dem\u00e1s", items: [] },
-  ];
+  // Bolita especial: cena de posada (platillos en Supabase: cena_platillos)
   const cena = document.createElement("button");
   cena.type = "button";
   cena.className = "tile tile-cena";
@@ -65,25 +58,121 @@
   collage.appendChild(cena);
 
   const esc = (t) => t.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
-  $("cenaMenu").innerHTML = CENA.map((sec, i) => `
-    <section class="cena-sec" style="--i:${i}">
-      <h4><span>${sec.icon}</span> ${sec.title}</h4>
-      <ul>${sec.items.length
-        ? sec.items.map((it) => `<li>${esc(it)}</li>`).join("")
-        : `<li class="soon">Pr\u00f3ximamente\u2026</li>`}</ul>
-    </section>`).join("");
+  // Selector visual de "\u00bfqui\u00e9n lo lleva?" con fotitos
+  const pop = $("cenaPop");
+  const pick = $("cenaPick");
+  pop.innerHTML = [...people].sort((a, b) => a.name.localeCompare(b.name, "es"))
+    .map((p) => `<button type="button" role="option" data-id="${p.id}" aria-selected="false"
+        aria-label="${esc(p.name)}" title="${esc(p.name)}"><img src="${p.img}" alt="" loading="lazy"></button>`).join("");
+  const togglePop = (open) => {
+    pop.hidden = !open;
+    pick.setAttribute("aria-expanded", String(open));
+    if (open) (pop.querySelector('[aria-selected="true"]') || pop.querySelector("button")).focus();
+  };
+  function setQuien(id) {
+    const p = byId[id];
+    $("cenaQuien").value = p ? id : "";
+    $("cenaPickFace").innerHTML = p ? `<img src="${p.img}" alt="">` : "\ud83d\ude4b";
+    $("cenaPickName").textContent = p ? p.name : "\u00bfQui\u00e9n?";
+    pick.classList.toggle("chosen", Boolean(p));
+    pop.querySelectorAll("button").forEach((b) => b.setAttribute("aria-selected", String(b.dataset.id === id)));
+  }
+  pick.addEventListener("click", () => togglePop(pop.hidden));
+  pop.addEventListener("click", (e) => {
+    const b = e.target.closest("button[data-id]");
+    if (!b) return;
+    setQuien(b.dataset.id);
+    togglePop(false);
+    $("cenaError").textContent = "";
+    $("cenaSave").focus();
+  });
+  document.addEventListener("click", (e) => {
+    if (!pop.hidden && !pop.contains(e.target) && !pick.contains(e.target)) togglePop(false);
+  });
+
+  let platillos = [];
+  function renderCena() {
+    $("cenaList").innerHTML = platillos.length
+      ? platillos.map((it, i) => {
+          const p = byId[it.person_id];
+          return `<li style="--i:${Math.min(i, 10)}">
+            ${p ? `<img src="${p.img}" alt="">` : ""}
+            <span class="cena-dish">${esc(it.platillo)}</span>
+            <span class="cena-who">${esc(p ? p.name : it.person_id)}</span>
+            ${it.id ? `<button type="button" class="cena-del" data-id="${it.id}"
+              aria-label="Borrar ${esc(it.platillo)}" title="Borrar">\ud83d\uddd1\ufe0f</button>` : ""}
+          </li>`;
+        }).join("")
+      : `<li class="soon">A\u00fan no hay platillos, \u00a1agrega el primero!</li>`;
+  }
+  $("cenaList").addEventListener("click", async (e) => {
+    const b = e.target.closest(".cena-del");
+    if (!b) return;
+    const id = Number(b.dataset.id);
+    const it = platillos.find((x) => x.id === id);
+    if (!it || !confirm(`\u00bfBorrar "${it.platillo}"?`)) return;
+    b.disabled = true;
+    $("cenaError").textContent = "";
+    try {
+      const r = await api("rpc/borrar_platillo", { method: "POST", body: JSON.stringify({ platillo_id: id }) });
+      if (!r.ok) throw new Error(r.status);
+      platillos = platillos.filter((x) => x.id !== id);
+      renderCena();
+    } catch (err) {
+      b.disabled = false;
+      $("cenaError").textContent = "No se pudo borrar, intenta otra vez";
+    }
+  });
+  function loadCena() {
+    if (!cartasOn) return renderCena();
+    return api("cena_platillos?select=id,platillo,person_id&order=creado.desc")
+      .then((r) => (r.ok ? r.json() : Promise.reject(r.status)))
+      .then((rows) => { platillos = rows; renderCena(); })
+      .catch((e) => console.warn("No pude cargar la cena", e));
+  }
+
+  $("cenaForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const platillo = $("cenaPlatillo").value.trim();
+    const quien = $("cenaQuien").value;
+    $("cenaError").textContent = "";
+    if (!platillo || !quien) {
+      $("cenaError").textContent = "Escribe el platillo y elige qui\u00e9n lo lleva";
+      return;
+    }
+    const btn = $("cenaSave");
+    btn.disabled = true;
+    try {
+      const r = await api("rpc/agregar_platillo", { method: "POST", body: JSON.stringify({ platillo, quien }) });
+      if (!r.ok) throw new Error(r.status);
+      platillos.unshift({ platillo, person_id: quien });
+      renderCena();
+      $("cenaPlatillo").value = "";
+      setQuien("");
+      $("cenaPlatillo").focus();
+      loadCena();
+    } catch (err) {
+      $("cenaError").textContent = "No se pudo guardar, intenta otra vez";
+    } finally {
+      btn.disabled = false;
+    }
+  });
 
   const cenaModal = $("cenaModal");
   const closeCena = () => (cenaModal.hidden = true);
   cena.addEventListener("click", () => {
     cenaModal.hidden = false;
     cenaModal.scrollTop = 0;
+    loadCena();
     const w = cenaModal.querySelector(".cena-wrap");
     w.style.animation = "none"; void w.offsetWidth; w.style.animation = "";
   });
   $("cenaClose").addEventListener("click", closeCena);
   cenaModal.addEventListener("click", (e) => { if (e.target === cenaModal) closeCena(); });
-  addEventListener("keydown", (e) => { if (e.key === "Escape" && !cenaModal.hidden) closeCena(); });
+  addEventListener("keydown", (e) => {
+    if (e.key !== "Escape" || cenaModal.hidden) return;
+    if (!pop.hidden) { togglePop(false); pick.focus(); } else closeCena();
+  });
 
   const tip = document.createElement("p");
   tip.className = "collage-hint";
@@ -443,4 +532,28 @@
       else x.clearRect(0, 0, c.width, c.height);
     })();
   }
+  // ---------- Cuenta regresiva a la posada ----------
+  // Domingo 20 de diciembre de 2026, hora de Ciudad de México (UTC-6).
+  const POSADA = new Date("2026-12-20T00:00:00-06:00");
+  const DIA = 24 * 60 * 60 * 1000;
+  const pad = (n) => String(n).padStart(2, "0");
+  function tickCountdown() {
+    const ms = POSADA - Date.now();
+    if (ms <= 0) {
+      $("cdBoxes").hidden = true;
+      $("cdMsg").hidden = false;
+      $("cdMsg").textContent = ms > -DIA ? "¡Hoy es la posada! 🎉" : "¡Gracias por venir a la posada! 🎄";
+      return false;
+    }
+    const s = Math.floor(ms / 1000);
+    $("cdD").textContent = Math.floor(s / 86400);
+    $("cdH").textContent = pad(Math.floor((s % 86400) / 3600));
+    $("cdM").textContent = pad(Math.floor((s % 3600) / 60));
+    $("cdS").textContent = pad(s % 60);
+    return true;
+  }
+  if (tickCountdown()) {
+    const cdTimer = setInterval(() => { if (!tickCountdown()) clearInterval(cdTimer); }, 1000);
+  }
+
 })();

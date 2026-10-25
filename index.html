@@ -24,6 +24,16 @@
         <span class="line2">Familia Peluche</span>
         <span class="year">2026</span>
       </h1>
+      <div class="countdown" id="countdown">
+        <p class="cd-date">Domingo 20 de diciembre</p>
+        <div class="cd-boxes" id="cdBoxes">
+          <div><b id="cdD">--</b><span>días</span></div>
+          <div><b id="cdH">--</b><span>horas</span></div>
+          <div><b id="cdM">--</b><span>min</span></div>
+          <div><b id="cdS">--</b><span>seg</span></div>
+        </div>
+        <p class="cd-msg" id="cdMsg" hidden></p>
+      </div>
     </header>
 
     <section class="collage" id="collage" aria-label="Participantes"></section>
@@ -95,7 +105,17 @@
         <div class="cena-icons" aria-hidden="true"><span>🫔</span><span>🍲</span><span>🍮</span><span>☕</span></div>
         <h3 id="cenaTitle">CENA</h3>
         <p class="cena-sub">de posada</p>
-        <div class="cena-menu" id="cenaMenu"></div>
+        <form class="cena-form" id="cenaForm" autocomplete="off">
+          <input id="cenaPlatillo" type="text" maxlength="80" placeholder="Platillo" aria-label="Platillo" required />
+          <input type="hidden" id="cenaQuien" />
+          <button type="button" class="cena-pick" id="cenaPick" aria-haspopup="listbox" aria-expanded="false" aria-label="Quién lo lleva">
+            <span class="pick-face" id="cenaPickFace">🙋</span><span class="pick-name" id="cenaPickName">¿Quién?</span><span class="pick-caret" aria-hidden="true">▾</span>
+          </button>
+          <button type="submit" id="cenaSave" aria-label="Guardar platillo">✓</button>
+          <div class="cena-pop" id="cenaPop" role="listbox" aria-label="Quién lo lleva" hidden></div>
+        </form>
+        <p class="cena-error" id="cenaError" role="alert"></p>
+        <ul class="cena-list" id="cenaList"></ul>
         <button type="button" class="cena-close" id="cenaClose" aria-label="Cerrar">✕</button>
       </div>
     </div>

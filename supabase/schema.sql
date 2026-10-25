@@ -87,3 +87,51 @@ end
 $$;
 revoke all on function public.votar_arrullo(text, text) from public;
 grant execute on function public.votar_arrullo(text, text) to anon, authenticated;
+
+-- Cena de posada: lista pública de platillos y quién los lleva.
+-- Solo se agregan vía agregar_platillo(), que valida que la persona exista.
+create table if not exists public.cena_platillos (
+  id        bigint generated always as identity primary key,
+  platillo  text not null check (char_length(platillo) between 1 and 80),
+  person_id text not null,
+  creado    timestamptz not null default now()
+);
+alter table public.cena_platillos enable row level security;
+drop policy if exists "cena publica" on public.cena_platillos;
+create policy "cena publica" on public.cena_platillos for select to anon, authenticated using (true);
+revoke insert, update, delete on public.cena_platillos from anon, authenticated;
+grant select on public.cena_platillos to anon, authenticated;
+
+create or replace function public.agregar_platillo(platillo text, quien text)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  platillo := btrim(coalesce(platillo, ''));
+  if platillo = '' or char_length(platillo) > 80 then
+    raise exception 'platillo inválido';
+  end if;
+  if not exists (select 1 from palabras where person_id = quien) then
+    raise exception 'persona inválida';
+  end if;
+  insert into cena_platillos (platillo, person_id) values (platillo, quien);
+end
+$$;
+revoke all on function public.agregar_platillo(text, text) from public;
+grant execute on function public.agregar_platillo(text, text) to anon, authenticated;
+
+-- Cualquiera puede borrar un platillo de la cena (solo por id, vía esta función).
+create or replace function public.borrar_platillo(platillo_id bigint)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  delete from cena_platillos where id = platillo_id;
+end
+$$;
+revoke all on function public.borrar_platillo(bigint) from public;
+grant execute on function public.borrar_platillo(bigint) to anon, authenticated;
