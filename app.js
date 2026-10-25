@@ -174,10 +174,6 @@
     if (!pop.hidden) { togglePop(false); pick.focus(); } else closeCena();
   });
 
-  const tip = document.createElement("p");
-  tip.className = "collage-hint";
-  tip.textContent = "💌 Toca una foto para leer su carta a Santa";
-  collage.after(tip);
 
   // ---------- Formulario ----------
   const input = $("word"), btn = $("go"), err = $("error"), form = $("form");

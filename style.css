@@ -137,7 +137,7 @@ button:disabled { opacity: .45; cursor: not-allowed; filter: grayscale(.4); }
 /* ---------- Fotos clicables ---------- */
 .tile { cursor: pointer; border: 0; font: inherit; }
 .tile:focus-visible { outline: 3px solid var(--gold); outline-offset: 4px; }
-.collage-hint { margin: -18px 0 26px; font-size: .95rem; opacity: .8; }
+.collage-hint { margin: 18px 0 0; font-size: .95rem; color: rgba(247,251,255,.82); opacity: 0; animation: rise .9s cubic-bezier(.2,.8,.2,1) .75s forwards; }
 
 /* ---------- Mi carta (en la revelación) ---------- */
 .mine { margin: 0 auto 18px; max-width: 420px; animation: fade .5s 1.3s both; }
@@ -605,16 +605,18 @@ button.ghost:active:not(:disabled) { transform: translateY(1px); box-shadow: non
 @keyframes badgePulse { 0%, 100% { box-shadow: 0 3px 8px rgba(0,0,0,.35), 0 0 0 0 rgba(168,220,255,.7); }
                         50% { box-shadow: 0 3px 8px rgba(0,0,0,.35), 0 0 0 7px rgba(168,220,255,0); } }
 
-/* ---------- Cuenta regresiva ---------- */
-.countdown { margin: 22px auto 0; opacity: 0; animation: rise .9s cubic-bezier(.2,.8,.2,1) .75s forwards; }
-.cd-date { margin: 0 0 10px; font-weight: 700; font-size: .95rem; letter-spacing: .04em; color: var(--ice); }
-.cd-boxes { display: flex; justify-content: center; gap: 10px; }
-.cd-boxes[hidden] { display: none; }
-.cd-boxes > div {
-  min-width: 64px; padding: 10px 8px 8px; border-radius: 14px;
-  background: rgba(168, 220, 255, .1); border: 1px solid rgba(168, 220, 255, .3);
-  backdrop-filter: blur(6px); box-shadow: 0 8px 20px rgba(0,0,0,.25);
+/* ---------- Cuenta regresiva (esquina superior derecha) ---------- */
+.countdown {
+  position: absolute; top: 12px; right: 12px; z-index: 2; padding: 8px 10px 7px; text-align: center;
+  border-radius: 14px; background: rgba(7,22,52,.55); border: 1px solid rgba(168,220,255,.25);
+  backdrop-filter: blur(6px); box-shadow: 0 6px 16px rgba(0,0,0,.25);
+  opacity: 0; animation: rise .9s cubic-bezier(.2,.8,.2,1) .75s forwards;
 }
-.cd-boxes b { display: block; font-size: 1.7rem; font-weight: 800; line-height: 1; color: var(--cream); font-variant-numeric: tabular-nums; }
-.cd-boxes span { display: block; margin-top: 4px; font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--ice); opacity: .85; }
-.cd-msg { margin: 0; font-family: "Mountains of Christmas", cursive; font-size: 2rem; color: var(--gold); text-shadow: 0 3px 0 var(--blue-dark); }
+.cd-date { margin: 0 0 5px; font-weight: 700; font-size: .68rem; letter-spacing: .04em; color: var(--ice); }
+.cd-boxes { display: flex; justify-content: center; gap: 4px; }
+.cd-boxes[hidden] { display: none; }
+.cd-boxes > div { min-width: 34px; padding: 4px 3px 3px; border-radius: 8px; background: rgba(168,220,255,.1); border: 1px solid rgba(168,220,255,.22); }
+.cd-boxes b { display: block; font-size: .95rem; font-weight: 800; line-height: 1; color: var(--cream); font-variant-numeric: tabular-nums; }
+.cd-boxes span { display: block; margin-top: 2px; font-size: .5rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--ice); opacity: .85; }
+.cd-msg { margin: 0; font-family: "Mountains of Christmas", cursive; font-size: 1.1rem; color: var(--gold); text-shadow: 0 2px 0 var(--blue-dark); }
+@media (max-width: 560px) { main { padding-top: 84px; } }
