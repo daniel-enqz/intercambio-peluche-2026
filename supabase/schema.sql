@@ -135,3 +135,35 @@ end
 $$;
 revoke all on function public.borrar_platillo(bigint) from public;
 grant execute on function public.borrar_platillo(bigint) to anon, authenticated;
+
+-- Amor a las cartas: likes ilimitados (sin contador visible en la página).
+-- Solo se suman vía dar_amor(), en lotes de 1 a 50.
+create table if not exists public.amor_cartas (
+  person_id text primary key,
+  likes     bigint not null default 0 check (likes >= 0)
+);
+alter table public.amor_cartas enable row level security;
+drop policy if exists "amor publico" on public.amor_cartas;
+create policy "amor publico" on public.amor_cartas for select to anon, authenticated using (true);
+revoke insert, update, delete on public.amor_cartas from anon, authenticated;
+grant select on public.amor_cartas to anon, authenticated;
+
+create or replace function public.dar_amor(pid text, n integer)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  if n is null or n < 1 or n > 50 then
+    raise exception 'cantidad inválida';
+  end if;
+  if not exists (select 1 from palabras where person_id = pid) then
+    raise exception 'persona inválida';
+  end if;
+  insert into amor_cartas (person_id, likes) values (pid, n)
+  on conflict (person_id) do update set likes = amor_cartas.likes + excluded.likes;
+end
+$$;
+revoke all on function public.dar_amor(text, integer) from public;
+grant execute on function public.dar_amor(text, integer) to anon, authenticated;

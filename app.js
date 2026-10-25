@@ -307,8 +307,133 @@
   let timers = [];
   let editing = null;
 
+  // ---------- Amor a las cartas (likes sin contador) ----------
+  // El nivel es relativo a la carta m\u00e1s querida: aura de corazones, brillo y
+  // un coraz\u00f3n que se llena, sin mostrar n\u00fameros.
+  const amor = {}; // person_id -> likes
+  const amorReady = cartasOn
+    ? api("amor_cartas?select=person_id,likes")
+        .then((r) => (r.ok ? r.json() : []))
+        .then((rows) => rows.forEach((a) => (amor[a.person_id] = Number(a.likes))))
+        .catch((e) => console.warn("No pude cargar el amor", e))
+    : Promise.resolve();
+  const LOVE_MSGS = [
+    "S\u00e9 el primero en mandarle amor \ud83d\udc8c",
+    "Le est\u00e1 llegando amorcito \ud83e\udd79",
+    "Esta carta ya est\u00e1 calientita \u2615",
+    "\u00a1Mucho amor por aqu\u00ed! \ud83d\udc95",
+    "\u00a1A esta carta la quieren much\u00edsimo! \ud83d\udc96",
+    "\u00a1La carta m\u00e1s querida de la posada! \ud83d\udd25",
+  ];
+  const AURA_EVERY = [0, 1500, 950, 620, 400, 230]; // ms entre corazones del aura por nivel
+  let loveFor = null, lovePending = 0, loveFlushT = null, auraT = null, auraLevel = -1;
+
+  function loveLevel(pid) {
+    const n = amor[pid] || 0;
+    if (!n) return { level: 0, fill: 0 };
+    const max = Math.max(...Object.values(amor), 1);
+    const rel = Math.sqrt(n / max); // ra\u00edz: que las cartas con poco amor tambi\u00e9n se noten
+    return { level: Math.min(5, 1 + Math.floor(rel * 4)), fill: Math.max(0.15, rel) };
+  }
+  function renderLove() {
+    if (!loveFor) return;
+    const { level, fill } = loveLevel(loveFor);
+    $("loveMsg").textContent = LOVE_MSGS[level];
+    $("loveLevel").style.transform = `translateY(${(24 * (1 - fill)).toFixed(2)}px)`;
+    $("stage").style.setProperty("--love", (level / 5).toFixed(2));
+    if (level !== auraLevel) {
+      auraLevel = level;
+      clearInterval(auraT);
+      if (level) auraT = setInterval(auraHeart, AURA_EVERY[level]);
+    }
+  }
+  const HEARTS = ["\u2764\ufe0f", "\ud83d\udc96", "\ud83d\udc95", "\ud83d\udc97", "\ud83e\ude77"];
+  const pickHeart = () => HEARTS[Math.floor(Math.random() * HEARTS.length)];
+  function auraHeart() {
+    if (document.hidden) return;
+    const h = document.createElement("i");
+    h.textContent = pickHeart();
+    h.style.left = `${Math.random() * 100}%`;
+    h.style.setProperty("--s", (0.7 + Math.random() * 1.1).toFixed(2));
+    h.style.setProperty("--dx", `${(Math.random() * 80 - 40).toFixed(0)}px`);
+    h.style.setProperty("--t", `${(5 + Math.random() * 4).toFixed(1)}s`);
+    h.addEventListener("animationend", () => h.remove());
+    $("loveAura").appendChild(h);
+  }
+  function burst(x, y, big) {
+    const layer = $("loveBurst");
+    const n = big ? 14 : 7;
+    for (let i = 0; i < n; i++) {
+      const h = document.createElement("i");
+      h.textContent = pickHeart();
+      h.style.left = `${x}px`; h.style.top = `${y}px`;
+      h.style.setProperty("--dx", `${(Math.random() * 160 - 80).toFixed(0)}px`);
+      h.style.setProperty("--dy", `${(-120 - Math.random() * 180).toFixed(0)}px`);
+      h.style.setProperty("--r", `${(Math.random() * 60 - 30).toFixed(0)}deg`);
+      h.style.setProperty("--s", (0.8 + Math.random() * 0.9).toFixed(2));
+      h.style.animationDelay = `${(Math.random() * 0.12).toFixed(2)}s`;
+      h.addEventListener("animationend", () => h.remove());
+      layer.appendChild(h);
+    }
+    if (big) {
+      const pop = document.createElement("b");
+      pop.textContent = "\u2764\ufe0f";
+      pop.style.left = `${x}px`; pop.style.top = `${y}px`;
+      pop.addEventListener("animationend", () => pop.remove());
+      layer.appendChild(pop);
+    }
+  }
+  function flushLove() {
+    clearTimeout(loveFlushT); loveFlushT = null;
+    if (!lovePending || !loveFor) return;
+    const pid = loveFor;
+    while (lovePending > 0) {
+      const n = Math.min(lovePending, 50);
+      lovePending -= n;
+      api("rpc/dar_amor", { method: "POST", keepalive: true, body: JSON.stringify({ pid, n }) })
+        .catch((e) => console.warn("No se pudo mandar el amor", e));
+    }
+  }
+  function giveLove(x, y, big) {
+    if (!loveFor) return;
+    amor[loveFor] = (amor[loveFor] || 0) + 1;
+    lovePending++;
+    burst(x, y, big);
+    renderLove();
+    const btn = $("loveBtn");
+    btn.classList.remove("beat"); void btn.offsetWidth; btn.classList.add("beat");
+    if (navigator.vibrate) navigator.vibrate(12);
+    clearTimeout(loveFlushT);
+    loveFlushT = setTimeout(flushLove, 800);
+  }
+  $("loveBtn").addEventListener("click", (e) => {
+    const r = e.currentTarget.getBoundingClientRect();
+    giveLove(r.left + r.width / 2, r.top + r.height / 2, false);
+  });
+  // Doble tap sobre la carta, como en Instagram
+  let lastTap = 0;
+  body.addEventListener("pointerup", (e) => {
+    const now = Date.now();
+    if (now - lastTap < 320) { giveLove(e.clientX, e.clientY, true); lastTap = 0; }
+    else lastTap = now;
+  });
+  function startLove(pid) {
+    loveFor = pid; auraLevel = -1;
+    $("love").hidden = false;
+    renderLove();
+  }
+  function stopLove() {
+    flushLove();
+    loveFor = null; auraLevel = -1;
+    clearInterval(auraT); auraT = null;
+    $("love").hidden = true;
+    $("loveAura").replaceChildren();
+    $("stage").style.setProperty("--love", "0");
+  }
+
   async function openLetter(p, mode) {
     timers.forEach(clearTimeout); timers = [];
+    stopLove();
     editing = mode === "edit" ? p : null;
     $("letterImg").src = p.img; $("letterImg").alt = p.name;
     $("letterTitle").textContent = mode === "edit" ? "Mi carta" : `Carta de ${p.name}`;
@@ -336,6 +461,8 @@
       body.textContent = "Las cartas a\u00fan no est\u00e1n disponibles. \u00a1Muy pronto! \u2728";
     } else if (c) {
       body.textContent = c; body.classList.remove("empty");
+      await amorReady;
+      if (!modal.hidden && !editing) startLove(p.id);
     } else {
       body.textContent = `${p.name} a\u00fan no ha escrito su carta \ud83c\udf84`;
     }
@@ -343,6 +470,7 @@
 
   function closeLetter() {
     timers.forEach(clearTimeout); timers = [];
+    stopLove();
     modal.hidden = true; stage.className = "stage"; editing = null;
   }
   $("letterClose").addEventListener("click", closeLetter);
