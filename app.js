@@ -5,8 +5,29 @@
 
   // ---------- Collage ----------
   const collage = $("collage");
-  [...people]
-    .sort(() => Math.random() - 0.5)
+  const collageT0 = performance.now();
+  const shuffle = (arr) => {
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  };
+  // Al cargar las cartas: primero (en orden aleatorio) quienes ya escribieron,
+  // luego los dem\u00e1s (tambi\u00e9n aleatorio). Las bolitas especiales quedan al final.
+  function orderCollage() {
+    const tiles = [...collage.querySelectorAll(".tile[data-person]")];
+    const ordered = [
+      ...shuffle(tiles.filter((t) => cartas[t.dataset.person])),
+      ...shuffle(tiles.filter((t) => !cartas[t.dataset.person])),
+    ];
+    collage.prepend(...ordered);
+    // Si las bolitas a\u00fan no empiezan a aparecer, que aparezcan en el nuevo orden.
+    if (performance.now() - collageT0 < 550) {
+      ordered.forEach((t, i) => t.style.setProperty("--d", `${(0.6 + i * 0.08).toFixed(2)}s`));
+    }
+  }
+  shuffle([...people])
     .forEach((p, i) => {
       const t = document.createElement("button");
       t.type = "button";
@@ -264,7 +285,7 @@
     cartasReady = api("cartas?select=person_id,contenido")
       .then((r) => (r.ok ? r.json() : []))
       .then((rows) => rows.forEach((c) => (cartas[c.person_id] = c.contenido)))
-      .then(() => refreshBadges())
+      .then(() => { orderCollage(); refreshBadges(); })
       .catch((e) => console.warn("No pude cargar las cartas", e));
   }
 
