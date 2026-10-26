@@ -566,13 +566,18 @@
     : "La votaci\u00f3n a\u00fan no est\u00e1 disponible.";
 
   function paint() {
-    const max = Math.max(1, ...people.map((p) => votos[p.id] || 0));
     for (const p of people) {
       const r = rows[p.id], n = votos[p.id] || 0;
-      r.count.textContent = n;
-      r.bar.style.width = `${(n / max) * 100}%`;
+      r.count.innerHTML = `<b>${n}</b><small>/${VOTOS_MAX}</small>`;
+      r.count.setAttribute("aria-label", `${n} de ${VOTOS_MAX} votos`);
+      r.bar.style.width = `${Math.min(n, VOTOS_MAX) / VOTOS_MAX * 100}%`;
       const mine = voted.has(p.id);
       const full = !mine && n >= VOTOS_MAX;
+      const gold = n >= VOTOS_MAX;
+      if (gold && !r.li.classList.contains("gold")) {
+        r.li.classList.remove("gold-pop"); void r.li.offsetWidth; r.li.classList.add("gold-pop");
+      }
+      r.li.classList.toggle("gold", gold);
       r.li.classList.toggle("voted", mine);
       r.li.classList.toggle("full", full);
       r.btn.textContent = mine ? "\u2705" : full ? "\ud83d\udcaf" : "+1";
